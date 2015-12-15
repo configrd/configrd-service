@@ -5,13 +5,19 @@ jdk: oraclejdk7
 before_install:
   - apt-get update
   - apt-get install -y maven
+  
+env:
+  - aws.accessKeyId=AKIAIENSRCCLALIZBRUA aws.secretKey=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
 
 branches:
   only:
     - master
 
 script:
-  - mvn clean install -Daws.accessKeyId=AKIAIENSRCCLALIZBRUA -Daws.secretKey=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
+  - mvn clean install -Daws.accessKeyId=$aws.accessKeyId -Daws.secretKey=$aws.secretKey
 
 after_success:
-  - mvn deploy -Dmaven.install.skip=true -Daws.accessKeyId=AKIAIENSRCCLALIZBRUA -Daws.secretKey=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
+  - mvn deploy -Dmaven.install.skip=true -Daws.accessKeyId=$aws.accessKeyId -Daws.secretKey=$aws.secretKey
+  
+notifications:
+   email: false
