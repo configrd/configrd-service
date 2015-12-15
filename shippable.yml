@@ -11,7 +11,7 @@ branches:
     - master
 
 script:
-  - mvn clean install -U -Daws.accessKeyId=AKIAIENSRCCLALIZBRUA -Daws.secretKey=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
+  - mvn clean install -Daws.accessKeyId=AKIAIENSRCCLALIZBRUA -Daws.secretKey=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
 
 after_success:
   - mvn deploy -Dmaven.install.skip=true -Daws.accessKeyId=AKIAIENSRCCLALIZBRUA -Daws.secretKey=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
