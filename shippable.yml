@@ -3,6 +3,7 @@ language: java
 jdk: oraclejdk7
 
 before_install:
+  - apt-get update
   - apt-get install -y maven
 
 branches:
