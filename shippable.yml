@@ -2,7 +2,8 @@ language: java
 
 jdk: oraclejdk7
 
-build_image: shippableimages/ubuntu1404_java
+before_install:
+  - apt-get install -y maven
 
 branches:
   only:
