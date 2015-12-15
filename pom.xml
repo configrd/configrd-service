@@ -102,9 +102,26 @@
 					</plugin>
 				</plugins>
 			</build>
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>org.springframework.build</groupId>
+				<artifactId>aws-maven</artifactId>
+				<version>5.0.0.RELEASE</version>
+			</extension>
+		</extensions>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -130,6 +147,7 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -175,13 +193,15 @@
 		</dependencies>
 	</dependencyManagement>
 	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
 		<repository>
-			<id>ossrh</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+			<id>aws-release</id>
+			<name>AWS Release Repository</name>
+			<url>s3://maven.appcrossings.net/release</url>
 		</repository>
+		<snapshotRepository>
+			<id>aws-snapshot</id>
+			<name>AWS Snapshot Repository</name>
+			<url>s3://maven.appcrossings.net/snapshot</url>
+		</snapshotRepository>
 	</distributionManagement>
 </project>
