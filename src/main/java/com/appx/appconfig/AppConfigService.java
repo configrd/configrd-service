@@ -18,5 +18,6 @@ public interface AppConfigService {
   @Consumes({MediaType.WILDCARD, MediaType.TEXT_PLAIN})
   @Produces(MediaType.TEXT_PLAIN)
   Response getRawProperties(@NotNull @PathParam("path") String path);
+ 
 
 }

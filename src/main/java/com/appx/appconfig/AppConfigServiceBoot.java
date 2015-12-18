@@ -7,13 +7,10 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @SpringBootApplication
 @PropertySource("classpath:application.properties")
-public class AppConfigServiceApplicationContext {
+public class AppConfigServiceBoot {
 
   public static void main(String[] args) {
-    SpringApplication.run(AppConfigServiceApplicationContext.class, args);
+    SpringApplication.run(AppConfigServiceBoot.class, args);
   }
-  
-  public static PropertySourcesPlaceholderConfigurer buildConfigs(){
-    return new PropertySourcesPlaceholderConfigurer();
-  }
+ 
 }

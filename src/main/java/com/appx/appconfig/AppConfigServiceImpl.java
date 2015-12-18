@@ -5,7 +5,6 @@ import java.io.IOException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ public class AppConfigServiceImpl implements AppConfigService {
 
   @Override
   public Response getRawProperties(String path) {
-        
+
     logger.debug("Requested path" + path);
 
     DefaultResourceLoader loader = new DefaultResourceLoader();
@@ -40,17 +39,16 @@ public class AppConfigServiceImpl implements AppConfigService {
 
     } catch (FileNotFoundException not) {
 
-      logger.error(not.getMessage(), Throwables.getRootCause(not));
+      logger.error(not.getMessage());
       return Response.status(Status.NOT_FOUND).build();
 
     } catch (IOException io) {
 
-      logger.error(io.getMessage(), Throwables.getRootCause(io));
+      logger.error(io.getMessage());
       return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 
     }
 
 
   }
-
 }
