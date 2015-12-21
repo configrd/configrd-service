@@ -4,36 +4,11 @@
 	<artifactId>appconfig-service</artifactId>
 	<name>AppConfig Service</name>
 	<url>https://bitbucket.org/appcrossings/appconfig-service</url>
-	<developers>
-		<developer>
-			<name>Krzysztof Karski</name>
-			<email>kkarski@appcrossings.com</email>
-			<organization>Appcrossings</organization>
-		</developer>
-	</developers>
 	<scm>
 		<url>https://bitbucket.org/appcrossings/appconfig-service</url>
 		<connection>scm:git:https://bitbucket.org/appcrossings/appconfig-service</connection>
 		<developerConnection>scm:git:https://bitbucket.org/appcrossings/appconfig-service</developerConnection>
 	</scm>
-	<repositories>
-		<repository>
-			<id>aws-release</id>
-			<name>AWS Release Repository</name>
-			<url>s3://maven.appcrossings.net/release</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-		</repository>
-		<repository>
-			<id>aws-snapshot</id>
-			<name>AWS Snapshot Repository</name>
-			<url>s3://maven.appcrossings.net/snapshot</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -44,36 +19,14 @@
 			<artifactId>spring-boot-starter-jersey</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>18.0</version>
-		</dependency>
-		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.4</version>
 		</dependency>
 	</dependencies>
-	<distributionManagement>
-		<repository>
-			<id>aws-release</id>
-			<name>AWS Release Repository</name>
-			<url>s3://maven.appcrossings.net/release</url>
-		</repository>
-		<snapshotRepository>
-			<id>aws-snapshot</id>
-			<name>AWS Snapshot Repository</name>
-			<url>s3://maven.appcrossings.net/snapshot</url>
-		</snapshotRepository>
-	</distributionManagement>
 	<parent>
 		<groupId>com.appx</groupId>
-		<artifactId>parent-pom</artifactId>
+		<artifactId>appconfig-pom</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	<version>1.0.0-SNAPSHOT</version>
 </project>
