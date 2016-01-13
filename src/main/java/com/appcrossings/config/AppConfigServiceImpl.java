@@ -1,4 +1,4 @@
-package com.appx.appconfig;
+package com.appcrossings.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

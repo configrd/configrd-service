@@ -1,4 +1,4 @@
-package com.appx.appconfig;
+package com.appcrossings.config;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

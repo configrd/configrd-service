@@ -1,4 +1,4 @@
-package com.appx.appconfig;
+package com.appcrossings.config;
 
 
 import javax.validation.constraints.NotNull;
