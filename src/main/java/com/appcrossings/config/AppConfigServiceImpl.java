@@ -14,14 +14,12 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Throwables;
-
 @Service
 public class AppConfigServiceImpl implements AppConfigService {
 
   private static final Logger logger = LoggerFactory.getLogger(AppConfigService.class);
 
-  @Value("${filesystem.root:classpath://configs}")
+  @Value("${filesystem.root:classpath:/configs}")
   private String filesystemRoot;
 
   @Override
@@ -39,7 +37,7 @@ public class AppConfigServiceImpl implements AppConfigService {
 
     } catch (FileNotFoundException not) {
 
-      logger.error(not.getMessage());
+      logger.info(not.getMessage());
       return Response.status(Status.NOT_FOUND).build();
 
     } catch (IOException io) {
