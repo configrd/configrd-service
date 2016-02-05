@@ -10,26 +10,7 @@
 		<url>https://github.com/appcrossings/appconfig-service</url>
 		<connection>scm:git:https://github.com/appcrossings/appconfig-service</connection>
 		<developerConnection>scm:git:https://github.com/appcrossings/appconfig-service</developerConnection>
-	</scm>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>1.3.2.RELEASE</version>
-				<configuration>
-					<mainClass>com.appcrossings.config.AppConfigServiceBoot</mainClass>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+	</scm>	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
