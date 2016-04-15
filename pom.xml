@@ -48,7 +48,6 @@
 	<parent>
 		<groupId>com.appcrossings.config</groupId>
 		<artifactId>appconfig-pom</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 	</parent>
-	<version>1.0.1</version>
 </project>
