@@ -44,11 +44,11 @@
 				</executions>
 			</plugin>
 		</plugins>
-
 	</build>
 	<parent>
 		<groupId>com.appcrossings.config</groupId>
 		<artifactId>appconfig-pom</artifactId>
 		<version>1.0.0</version>
 	</parent>
+	<version>1.0.1</version>
 </project>
