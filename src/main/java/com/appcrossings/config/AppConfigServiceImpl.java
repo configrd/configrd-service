@@ -2,7 +2,11 @@ package com.appcrossings.config;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -14,6 +18,8 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 public class AppConfigServiceImpl implements AppConfigService {
 
@@ -22,12 +28,14 @@ public class AppConfigServiceImpl implements AppConfigService {
   @Value("${filesystem.root:classpath:/configs}")
   private String filesystemRoot;
 
+  private final ObjectMapper mapper = new ObjectMapper();
+
+  private final DefaultResourceLoader loader = new DefaultResourceLoader();
+
   @Override
   public Response getRawProperties(String path) {
 
     logger.debug("Requested path" + path);
-
-    DefaultResourceLoader loader = new DefaultResourceLoader();
     Resource r = loader.getResource(filesystemRoot + "/" + path);
 
     try {
@@ -47,6 +55,31 @@ public class AppConfigServiceImpl implements AppConfigService {
 
     }
 
+  }
 
+  @Override
+  public Response getHealth() {
+
+    CacheControl control = new CacheControl();
+    control.setNoCache(true);
+    control.setMustRevalidate(true);
+
+    try {
+      
+      Resource r = loader.getResource(filesystemRoot + "/health.properties");
+      Properties props = new Properties();
+      props.load(r.getInputStream());
+
+      Map<String, String> health = new HashMap<String, String>();
+      health.put("version", props.getProperty("appconfig.service.version"));
+      health.put("built", props.getProperty("appconfig.service.build.timestamp"));
+
+      return Response.ok(mapper.writeValueAsString(health)).cacheControl(control).build();
+
+    } catch (Exception e) {
+      
+      return Response.status(Status.INTERNAL_SERVER_ERROR).cacheControl(control).build();
+    
+    }
   }
 }

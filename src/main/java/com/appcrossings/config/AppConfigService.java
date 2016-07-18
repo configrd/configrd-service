@@ -10,14 +10,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/config")
+@Path("/")
 public interface AppConfigService {
 
   @GET
-  @Path("/{path:.+}")
+  @Path("/config/{path:.+}")
   @Consumes({MediaType.WILDCARD, MediaType.TEXT_PLAIN})
   @Produces(MediaType.TEXT_PLAIN)
   Response getRawProperties(@NotNull @PathParam("path") String path);
  
+  @GET
+  @Path("/health")
+  Response getHealth();
 
 }
