@@ -65,21 +65,20 @@ public class AppConfigServiceImpl implements AppConfigService {
     control.setMustRevalidate(true);
 
     try {
-      
+
       Resource r = loader.getResource(filesystemRoot + "/health.properties");
       Properties props = new Properties();
       props.load(r.getInputStream());
 
-      Map<String, String> health = new HashMap<String, String>();
-      health.put("version", props.getProperty("appconfig.service.version"));
-      health.put("built", props.getProperty("appconfig.service.build.timestamp"));
+      Map<Object, Object> health = new HashMap<Object, Object>();
+      health.putAll(props);
 
       return Response.ok(mapper.writeValueAsString(health)).cacheControl(control).build();
 
     } catch (Exception e) {
-      
+
       return Response.status(Status.INTERNAL_SERVER_ERROR).cacheControl(control).build();
-    
+
     }
   }
 }

@@ -24,7 +24,7 @@ public class TestHealthCheck extends AbstractTestNGSpringContextTests {
 
     String body = (String) resp.getEntity();
     Assert.assertTrue(body.contains("version"));
-    Assert.assertTrue(body.contains("built"));
+    Assert.assertTrue(body.contains("build"));
   
   }
 

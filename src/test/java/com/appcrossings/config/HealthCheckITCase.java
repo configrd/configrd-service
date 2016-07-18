@@ -37,7 +37,7 @@ public class HealthCheckITCase extends AbstractTestNGSpringContextTests {
 
       String body = (String) IOUtils.toString(e.getContent());
       Assert.assertTrue(body.contains("version"));
-      Assert.assertTrue(body.contains("built"));
+      Assert.assertTrue(body.contains("build"));
       EntityUtils.consume(e);
     } finally {
       response.close();
