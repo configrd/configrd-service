@@ -39,7 +39,7 @@ public class ConfigServer {
     PathHandler path = Handlers.path();
 
     if (undertow == null) {
-      undertow = Undertow.builder().addHttpListener(Integer.valueOf(port), "localhost")
+      undertow = Undertow.builder().addHttpListener(Integer.valueOf(port), "0.0.0.0")
           .setHandler(path).build();
 
       try {
