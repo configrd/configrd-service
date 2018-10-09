@@ -1,0 +1,113 @@
+version: 2
+jobs:
+  build-service:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    environment:
+      CC_TEST_REPORTER_ID: 4c5109885099b7b3280b919cda43c0202c2969f658484dc1c55b6588561b8c6c
+    steps:
+    - checkout
+    - run:
+        name: Setup Code Climate test-reporter
+        command: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+    - run:
+        name: Download vault
+        command: |
+          curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip --output ./vault.zip
+          unzip vault.zip
+          ./vault server -dev &
+          export VAULT_ADDR=http://127.0.0.1:8200
+          sleep 2
+          ./vault auth enable userpass
+          ./vault write auth/userpass/users/test password=password policies=admins
+          ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
+    - run: mvn clean install -B -DskipITs -s .circleci/settings.xml
+    - save_cache:
+        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
+        paths:
+        - target
+        - ./vault
+        - ./cc-test-reporter
+        - ~/.m2
+    - store_test_results:
+        path: target/surefire-reports
+  integration-test:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    environment:
+      CC_TEST_REPORTER_ID: 4c5109885099b7b3280b919cda43c0202c2969f658484dc1c55b6588561b8c6c
+    steps:
+    - checkout
+    - restore_cache:
+        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
+    - run:
+        name: Download vault
+        command: |
+          ./vault server -dev &
+          export VAULT_ADDR=http://127.0.0.1:8200
+          sleep 2
+          ./vault auth enable userpass
+          ./vault write auth/userpass/users/test password=password policies=admins
+          ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
+    - run: mvn integration-test verify -B  -s .circleci/settings.xml
+    - run:
+        name: Upload Code Climate test-reporter
+        command: |
+          cd src/main/java
+          ../../../cc-test-reporter format-coverage -d -t jacoco ../../../target/site/jacoco/jacoco.xml -o ../../../target/coverage/codeclimate.json
+          ../../../cc-test-reporter upload-coverage -d -i ../../../target/coverage/codeclimate.json
+    - store_test_results:
+        path: target/failsafe-reports
+    - store_artifacts:
+        path: target
+  deploy-service:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    steps:
+    - checkout
+    - restore_cache:
+        keys:
+        - appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
+    - run: mvn jar:jar deploy:deploy -B -DskipTests -s .circleci/settings.xml
+    - store_artifacts:
+        path: target
+  docker-push:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    steps:
+    - checkout
+    - restore_cache:
+        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Build and push docker image
+        command: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          set +e
+          docker pull $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
+          docker build --cache-from $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest -t $DOCKERHUB/${DOCKER_IMAGE_NAME}:${CIRCLE_SHA1:0:7} .
+          docker push $DOCKERHUB/${DOCKER_IMAGE_NAME}:${CIRCLE_SHA1:0:7}
+          docker tag $DOCKERHUB/${DOCKER_IMAGE_NAME}:${CIRCLE_SHA1:0:7} $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
+          docker push $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
+workflows:
+  version: 2
+  build_push:
+    jobs:
+    - build-service
+    - integration-test:
+        requires:
+        - build-service
+    - deploy-service:
+        requires:
+        - integration-test
+    - docker-push:
+        filters:
+          branches:
+            only:
+            - v2-dev
+        requires:
+        - deploy-service

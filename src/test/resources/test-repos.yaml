@@ -1,0 +1,40 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+  repos:
+    git-master:
+      uri: git://git@github.com:appcrossings/appconfig-client.git#master
+      root: src/test/resources
+    http-resource:
+      uri: https://raw.githubusercontent.com/appcrossings/appconfig-client/master/src/test/resources
+      username: 
+      password:
+      fileName: default.properties
+      hostsName: hosts.properties
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    tmp-configs:
+      uri: file:/var/tmp/configs
+    appx-d:
+      uri: classpath:/env/dev
+      fileName: default.json
+    appx-j:
+      uri: classpath:/
+      fileName: default.json
+    appx-y:
+      uri: classpath:/
+      fileName: default.yaml
+    classpath:
+      uri: classpath:/
+    default:
+      uri: classpath:/
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: classpath:/env
+      named:
+        custom: dev/custom
+        simple: dev/simple

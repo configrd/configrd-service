@@ -1,0 +1,26 @@
+service:
+  repos:
+    git-master:
+      git:
+        uri: git@github.com:appcrossings/appconfig-client.git#master
+        root: src/test/resources
+        user: null
+        password: null
+        context: /appx-a
+        fileName: "default.properties"
+    git-resource:
+      http:
+        uri: https://github.com/appcrossings/appconfig-client/tree/master/src/test/resources
+        user: null
+        password: null
+        context: /appx-b
+        fileName: "default.properties"
+        mergeStrategyClass: "com.appcrossings.config.strategy.DefaultMergeStrategy"
+    tmp-configs:
+      file:
+        uri: file:/var/tmp/configs
+        context: /appx-c
+    classpath:
+      file:
+        uri: classpath:/config
+        context: /appx-d

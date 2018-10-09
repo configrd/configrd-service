@@ -1,0 +1,26 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+  repos:
+    appx-d:
+      uri: http://config.appcrossings.net/env/dev
+      fileName: default.json
+    appx-j:
+      uri: http://config.appcrossings.net
+      fileName: default.json
+    appx-y:
+      uri: http://config.appcrossings.net
+      fileName: default.yaml
+    classpath:
+      uri: http://config.appcrossings.net
+    default:
+      uri: http://config.appcrossings.net
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: http://config.appcrossings.net/env
+      named:
+        custom: dev/custom
+        simple: dev/simple

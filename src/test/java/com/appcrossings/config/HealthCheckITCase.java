@@ -1,47 +1,47 @@
 package com.appcrossings.config;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-@SpringApplicationConfiguration(classes = {AppConfigServiceBoot.class})
-@WebIntegrationTest
-public class HealthCheckITCase extends AbstractTestNGSpringContextTests {
+
+public class HealthCheckITCase extends TestConfigServer {
+
+
+  protected Client client;
+  protected WebTarget target;
+  protected MediaType content;
+  protected MediaType accept;
+  
+  @BeforeClass
+  public static void setup() throws Throwable {
+    TestConfigServer.serverStart();
+  }
+
+  @AfterClass
+  public static void teardown() throws Exception {
+    TestConfigServer.serverStop();
+  }
 
   @Test
   public void testHealthEndpoint() throws Exception {
+    client = ClientBuilder.newClient();
+    WebTarget target = client.target("http://localhost:8891/configrd/v1/health");
 
-    CloseableHttpClient httpclient = HttpClients.createDefault();
-    HttpGet httpGet = new HttpGet("http://localhost:8891/health");
-    httpGet.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.DEFAULT_TEXT.getMimeType());
-    CloseableHttpResponse response = httpclient.execute(httpGet);
-    HttpEntity e = null;
+    Response resp = target.request().accept(MediaType.WILDCARD).get();
+    Assert.assertEquals(200, resp.getStatus());
+    String body = resp.readEntity(String.class);
 
-    try {
-
-      e = response.getEntity();
-      
-      Assert.assertNotNull(e);
-      Assert.assertEquals(response.getStatusLine().getStatusCode(), 200);
-
-      String body = (String) IOUtils.toString(e.getContent());
-      Assert.assertTrue(body.contains("version"));
-      Assert.assertTrue(body.contains("build"));
-      EntityUtils.consume(e);
-    } finally {
-      response.close();
-    }
+    Assert.assertTrue(body.contains("version"));
+    Assert.assertTrue(body.contains("build"));
   }
+
+
 
 }

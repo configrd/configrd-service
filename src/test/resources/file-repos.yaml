@@ -1,0 +1,26 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+  repos:
+    appx-d:
+      uri: file:/tmp/junit/env/dev
+      fileName: default.json
+    appx-j:
+      uri: file:/tmp/junit
+      fileName: default.json
+    appx-y:
+      uri: file:/tmp/junit
+      fileName: default.yaml
+    classpath:
+      uri: file:/tmp/junit
+    default:
+      uri: file:/tmp/junit
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: file:/tmp/junit/env
+      named:
+        custom: dev/custom
+        simple: dev/simple

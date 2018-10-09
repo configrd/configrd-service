@@ -1,0 +1,34 @@
+{
+	"property": {
+		"1": {
+			"name": "simple"
+		},
+		"3": "simple",
+		"4": {
+			"name": "${property.1.name}-${property.3.name}"
+		}
+	},
+	"bonus": {
+		"1": {
+			"property": "bonus2"
+		}
+	},
+	"array": {
+		"named": [
+			"value1",
+			"value2",
+			"value3"
+		],
+		"named2": {
+			"value4": {
+				"sub": true
+			},
+			"value5": {
+				"sub": 5
+			},
+			"value6": {
+				"sub": "value"
+			}
+		}
+	}
+}

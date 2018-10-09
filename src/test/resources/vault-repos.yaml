@@ -1,0 +1,35 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+    username: test
+    password: password
+    authMethod: UserPass
+  repos:
+    appx-d:
+      uri: http://localhost:8200/v1/secret/data/appx-d/env/dev
+      fileName: default.json
+      streamSource: hashicorp_vault
+    appx-j:
+      uri: http://localhost:8200/v1/secret/data/appx-j
+      fileName: default.json
+      streamSource: hashicorp_vault
+    appx-y:
+      uri: http://localhost:8200/v1/secret/data/appx-y
+      fileName: default.yaml
+      streamSource: hashicorp_vault
+    classpath:
+      uri: http://localhost:8200/v1/secret/data/classpath
+      streamSource: hashicorp_vault
+    default:
+      uri: http://localhost:8200/v1/secret/data/default
+      streamSource: hashicorp_vault
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: http://localhost:8200/v1/secret/data/classpath-env/env
+      streamSource: hashicorp_vault
+      named:
+        custom: dev/custom
+        simple: dev/simple
