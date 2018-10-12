@@ -15,7 +15,7 @@ service:
         password: null
         context: /appx-b
         fileName: "default.properties"
-        mergeStrategyClass: "com.appcrossings.config.strategy.DefaultMergeStrategy"
+        mergeStrategyClass: "io.configrd.core.strategy.DefaultMergeStrategy"
     tmp-configs:
       file:
         uri: file:/var/tmp/configs
