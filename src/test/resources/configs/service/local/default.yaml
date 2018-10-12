@@ -2,7 +2,7 @@ service:
   repos:
     git-master:
       git:
-        uri: git@github.com:appcrossings/appconfig-client.git#master
+        uri: git@github.com:configrd/configrd-client.git#master
         root: src/test/resources
         user: null
         password: null
@@ -10,7 +10,7 @@ service:
         fileName: "default.properties"
     git-resource:
       http:
-        uri: https://github.com/appcrossings/appconfig-client/tree/master/src/test/resources
+        uri: https://github.com/configrd/configrd-client/tree/master/src/test/resources
         user: null
         password: null
         context: /appx-b

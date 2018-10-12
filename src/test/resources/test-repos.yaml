@@ -4,10 +4,10 @@ service:
     hostsName: hosts.properties
   repos:
     git-master:
-      uri: git://git@github.com:appcrossings/appconfig-client.git#master
+      uri: git://git@github.com:configrd/configrd-client.git#master
       root: src/test/resources
     http-resource:
-      uri: https://raw.githubusercontent.com/appcrossings/appconfig-client/master/src/test/resources
+      uri: https://raw.githubusercontent.com/configrd/configrd-client/master/src/test/resources
       username: 
       password:
       fileName: default.properties

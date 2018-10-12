@@ -26,7 +26,7 @@ jobs:
           ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
     - run: mvn clean install -B -DskipITs -s .circleci/settings.xml
     - save_cache:
-        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
+        key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
         - target
         - ./vault
@@ -42,7 +42,7 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
+        key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
     - run:
         name: Download vault
         command: |
@@ -70,7 +70,7 @@ jobs:
     - checkout
     - restore_cache:
         keys:
-        - appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
+        - configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
     - run: mvn jar:jar deploy:deploy -B -DskipTests -s .circleci/settings.xml
     - store_artifacts:
         path: target
@@ -80,7 +80,7 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        key: appconfig-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
+        key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
     - setup_remote_docker:
         docker_layer_caching: true
     - run:
