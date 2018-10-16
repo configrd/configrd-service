@@ -4,7 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import org.junit.Assert;
 import org.junit.Test;
-import io.configrd.core.hashicorp.HashicorpRepoDef;
+import io.configrd.core.hashicorp.VaultRepoDef;
 import io.configrd.core.hashicorp.VaultAuthenticator;
 import io.configrd.core.hashicorp.util.VaultUtil;
 
@@ -15,7 +15,7 @@ public class TestVaultAuthenticator {
   @Test
   public void testExtractMount() {
 
-    HashicorpRepoDef value = new HashicorpRepoDef("name", new HashMap<>());
+    VaultRepoDef value = new VaultRepoDef("name", new HashMap<>());
     value.setPassword("testUser");
     value.setUsername("password");
 

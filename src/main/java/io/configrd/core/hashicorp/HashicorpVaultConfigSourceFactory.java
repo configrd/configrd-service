@@ -33,7 +33,7 @@ public class HashicorpVaultConfigSourceFactory implements ConfigSourceFactory {
     final Map<String, Object> merged = new HashMap<>(defaults);
     merged.putAll(values);
 
-    HashicorpRepoDef def = new HashicorpRepoDef(name, merged);
+    VaultRepoDef def = new VaultRepoDef(name, merged);
 
     if (def.valid().length > 0) {
       throw new IllegalArgumentException(String.join(",", def.valid()));

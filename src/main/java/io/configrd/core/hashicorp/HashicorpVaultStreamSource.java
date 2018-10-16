@@ -24,7 +24,7 @@ public class HashicorpVaultStreamSource implements StreamSource {
   private final static Logger logger = LoggerFactory.getLogger(HashicorpVaultStreamSource.class);
   private final VaultAuthenticator authenticator = new VaultAuthenticator();
 
-  private final HashicorpRepoDef repoDef;
+  private final VaultRepoDef repoDef;
   private final URIBuilder builder;
   private AuthResponse auth;
 
@@ -32,7 +32,7 @@ public class HashicorpVaultStreamSource implements StreamSource {
 
   public static final String HASHICORP_VAULT = "hashicorp_vault";
 
-  public HashicorpVaultStreamSource(HashicorpRepoDef repoDef) {
+  public HashicorpVaultStreamSource(VaultRepoDef repoDef) {
 
     this.repoDef = repoDef;
     this.builder = URIBuilder.create(repoDef.getUri());

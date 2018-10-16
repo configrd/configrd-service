@@ -35,7 +35,7 @@ public class VaultAuthenticator {
         new OkHttpClient.Builder().retryOnConnectionFailure(true).followRedirects(true).build();
   }
 
-  public Optional<AuthResponse> authenticate(URI uri, HashicorpRepoDef values, AuthResponse resp) {
+  public Optional<AuthResponse> authenticate(URI uri, VaultRepoDef values, AuthResponse resp) {
 
     AuthResponse auth = null;
 

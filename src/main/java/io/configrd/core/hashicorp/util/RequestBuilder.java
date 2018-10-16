@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.jsoniter.output.JsonStream;
-import io.configrd.core.hashicorp.HashicorpRepoDef;
+import io.configrd.core.hashicorp.VaultRepoDef;
 import io.configrd.core.util.StringUtils;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -17,7 +17,7 @@ public class RequestBuilder {
 
   private final static Logger logger = LoggerFactory.getLogger(RequestBuilder.class);
 
-  public static Request v2_postKv(HashicorpRepoDef def, String path, String etag,
+  public static Request v2_postKv(VaultRepoDef def, String path, String etag,
       Map<String, Object> packet) {
 
     okhttp3.Request.Builder builder =
@@ -41,7 +41,7 @@ public class RequestBuilder {
 
   }
 
-  public static Request v2_getKv(HashicorpRepoDef def, String path) {
+  public static Request v2_getKv(VaultRepoDef def, String path) {
 
     okhttp3.Request.Builder builder =
         new okhttp3.Request.Builder().header("X-Vault-Token", def.getToken()).get();
@@ -67,7 +67,7 @@ public class RequestBuilder {
     return URL;
   }
 
-  public static Request v1_postKv(HashicorpRepoDef def, String path, Map<String, Object> packet) {
+  public static Request v1_postKv(VaultRepoDef def, String path, Map<String, Object> packet) {
 
     okhttp3.Request.Builder builder =
         new okhttp3.Request.Builder().header("X-Vault-Token", def.getToken());
