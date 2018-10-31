@@ -24,7 +24,7 @@ jobs:
           ./vault auth enable userpass
           ./vault write auth/userpass/users/test password=password policies=admins
           ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
-    - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${aws.accessKeyId} -Daws.secretKey={aws.secretKey}
+    - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
     - run:
         name: Upload Code Climate test-reporter
         command: |
