@@ -1,0 +1,27 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+    streamSource: s3
+  repos:
+    appx-d:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/
+      fileName: default.json
+    appx-j:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/
+      fileName: default.json
+    appx-y:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/
+      fileName: default.yaml
+    classpath:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/
+    default:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/env
+      named:
+        custom: dev/custom
+        simple: dev/simple

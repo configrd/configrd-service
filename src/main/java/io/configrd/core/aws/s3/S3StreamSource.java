@@ -9,9 +9,6 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
@@ -26,8 +23,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.base.Throwables;
 import com.jsoniter.output.JsonStream;
-import io.configrd.core.aws.s3.S3RepoDef.AuthMethod;
 import io.configrd.core.processor.JsonProcessor;
+import io.configrd.core.processor.ProcessorSelector;
 import io.configrd.core.processor.PropertiesProcessor;
 import io.configrd.core.processor.YamlProcessor;
 import io.configrd.core.source.AdHocStreamSource;
@@ -35,6 +32,7 @@ import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.RepoDef;
 import io.configrd.core.source.StreamPacket;
 import io.configrd.core.source.StreamSource;
+import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
 
 public class S3StreamSource implements StreamSource, AdHocStreamSource {
@@ -48,22 +46,15 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
 
   public static final String S3 = "s3";
 
-  public S3StreamSource(S3RepoDef repoDef) {
+  public S3StreamSource(S3RepoDef repoDef, AWSCredentialsProvider creds) {
 
     this.repoDef = repoDef;
-    this.builder = URIBuilder.create(repoDef.getUri());
+    builder = URIBuilder.create(repoDef.toURI());
 
-    AWSCredentialsProvider creds = null;
-
-    if (AuthMethod.UserPass.name().equalsIgnoreCase(repoDef.getAuthMethod())) {
-
-      creds = new AWSStaticCredentialsProvider(
-          new BasicAWSCredentials(repoDef.getUsername(), repoDef.getPassword()));
-
-    } else {
-
-      creds = new DefaultAWSCredentialsProviderChain();
-
+    if (this.repoDef.getTrustCert() == null && StringUtils
+        .hasText(System.getProperty(io.configrd.service.SystemProperties.S3_TRUST_CERTS))) {
+      this.repoDef.setTrustCert(
+          Boolean.valueOf(System.getProperty(io.configrd.service.SystemProperties.S3_TRUST_CERTS)));
     }
 
     s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).build();
@@ -74,30 +65,34 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
   @Override
   public Optional<PropertyPacket> stream(URI uri) {
 
-    Optional<PropertyPacket> packet = Optional.empty();
+    StreamPacket packet = null;
 
     long start = System.currentTimeMillis();
 
-    logger.debug("Requesting bucket " + bucketName + ", file: " + uri);
+    String path = org.apache.commons.lang3.StringUtils.removeStart(uri.getPath(), "/");
 
-    try (S3Object object = s3Client.getObject(bucketName, uri.getPath());) {
-      
+    logger.debug("Requesting bucket " + bucketName + ", path: " + path);
+
+    try (S3Object object = s3Client.getObject(bucketName, path);) {
 
       if (object.getObjectContent() != null) {
 
-        packet = Optional.of(new StreamPacket(uri, object.getObjectContent()));
-        packet.get().setETag(object.getObjectMetadata().getETag());
+        packet = new StreamPacket(uri, object.getObjectContent(),
+            object.getObjectMetadata().getContentLength());
+        packet.setETag(object.getObjectMetadata().getETag());
+        packet.putAll(ProcessorSelector.process(uri.toString(), packet.bytes()));
 
       } else {
-        
-        logger.debug("No file found: " + bucketName + " file:" + uri.getPath());
-        return Optional.empty();
-        
+
+        logger.debug("No file found: " + bucketName + " path:" + path);
+
       }
 
     } catch (AmazonS3Exception e) {
 
-      logger.error(e.getMessage(), e);
+      if (e.getStatusCode() != 404) {
+        logger.error(e.getMessage(), e);
+      }
 
     } catch (IOException io) {
 
@@ -109,7 +104,7 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
     logger.debug(
         "Amazon Connector Took: " + (System.currentTimeMillis() - start) + "ms to fetch " + uri);
 
-    return packet;
+    return Optional.ofNullable(packet);
   }
 
   @Override

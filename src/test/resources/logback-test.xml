@@ -9,6 +9,7 @@
 	</appender>
 
 	<logger name="io.configrd.core" level="DEBUG" />
+	<logger name="com.amazonaws" level="DEBUG"/>
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

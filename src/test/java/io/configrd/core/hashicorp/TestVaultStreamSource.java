@@ -32,13 +32,13 @@ public class TestVaultStreamSource {
   public void init() {
 
     Map<String, Object> vals = new HashMap<>();
-    Map<String, Object> defaults = new HashMap<>();
+
     vals.put(VaultRepoDef.USERNAME_FIELD, "test");
     vals.put(VaultRepoDef.PASSWORD_FIELD, "password");
     vals.put(VaultRepoDef.AUTH_METHOD_FIELD, "UserPass");
     vals.put(RepoDef.URI_FIELD, URL);
 
-    stream = factory.newStreamSource("TestVaultStreamSource", vals, defaults);
+    stream = factory.newStreamSource("TestVaultStreamSource", vals);
   }
 
   @After

@@ -63,7 +63,6 @@
 			<artifactId>configrd-core</artifactId>
 			<version>2.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
@@ -72,7 +71,6 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>io.undertow</groupId>
 			<artifactId>undertow-core</artifactId>
@@ -203,6 +201,10 @@
 					<includes>
 						<include>**/*ITCase.java</include>
 					</includes>
+					<systemPropertyVariables>
+						<aws.accessKeyId>${aws.accessKey}</aws.accessKeyId>
+						<aws.secretKey>${aws.secret}</aws.secretKey>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>

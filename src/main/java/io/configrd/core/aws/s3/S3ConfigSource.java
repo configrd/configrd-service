@@ -4,7 +4,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import io.configrd.core.hashicorp.HashicorpVaultStreamSource;
 import io.configrd.core.source.DefaultConfigSource;
 import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.StreamSource;

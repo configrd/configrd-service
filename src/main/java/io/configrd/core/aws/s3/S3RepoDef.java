@@ -1,16 +1,39 @@
 package io.configrd.core.aws.s3;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.beanutils.BeanUtils;
 import io.configrd.core.source.DefaultRepoDef;
 import io.configrd.core.source.FileBasedRepo;
 import io.configrd.core.source.SecuredRepo;
+import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
 import io.configrd.core.util.UriUtil;
+import io.configrd.service.SystemProperties;
 
 @SuppressWarnings("serial")
 public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedRepo {
+
+  public enum AuthMethod {
+
+    AWS_IAM, UserPass;
+
+  }
+
+  private String authMethod = AuthMethod.AWS_IAM.name();
+
+  private String fileName;
+
+  private String hostsName;
+
+  private String password;
+
+  private Boolean trustCert =
+      Boolean.valueOf(System.getProperty(SystemProperties.S3_TRUST_CERTS, "false"));
+
+  private String username;
 
   /**
    * For testing purposes
@@ -31,29 +54,9 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
 
   }
 
-  public enum AuthMethod {
-
-    AWS_IAM, UserPass;
-
-  }
-
   public String getAuthMethod() {
     return authMethod;
   }
-
-  public void setAuthMethod(String authMethod) {
-    this.authMethod = authMethod;
-  }
-
-  private String authMethod;
-
-  private String fileName;
-
-  private String hostsName;
-
-  private String password;
-
-  private String username;
 
   public String getFileName() {
     return fileName;
@@ -67,8 +70,16 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
     return password;
   }
 
+  public Boolean getTrustCert() {
+    return trustCert;
+  }
+
   public String getUsername() {
     return username;
+  }
+
+  public void setAuthMethod(String authMethod) {
+    this.authMethod = authMethod;
   }
 
   public void setFileName(String fileName) {
@@ -81,6 +92,10 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public void setTrustCert(Boolean trustCert) {
+    this.trustCert = trustCert;
   }
 
   public void setUsername(String username) {
@@ -97,19 +112,24 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
   @Override
   public String[] valid() {
 
-    String[] err = new String[] {};
+    List<String> err = new ArrayList<>();
 
     URI uri = toURI();
 
+    if (StringUtils.hasText(getAuthMethod()) && getAuthMethod().equals(AuthMethod.UserPass.name())
+        && (!StringUtils.hasText(getUsername()) || !StringUtils.hasText(getPassword()))) {
+      err.add("Username and password must be configured with UserPass authentication");
+    }
+
     if (UriUtil.validate(uri).isAbsolute().invalid()) {
-      err = new String[] {"Uri must be absolute"};
+      err.add("Uri must be absolute");
     }
 
-    if (UriUtil.validate(uri).isScheme("s3", "https").invalid()) {
-      err = new String[] {"Uri must be start with s3://"};
+    if (UriUtil.validate(uri).isScheme("s3", "https", "http").invalid()) {
+      err.add("Uri must be start with s3://");
     }
 
-    return err;
+    return err.toArray(new String[] {});
   }
 
 

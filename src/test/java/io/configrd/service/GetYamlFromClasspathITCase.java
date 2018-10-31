@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.SystemProperties;
 import io.configrd.core.processor.PropertiesProcessor;
 import io.configrd.core.processor.YamlProcessor;
 
@@ -21,7 +21,7 @@ public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(ConfigSourceResolver.CONFIGRD_CONFIG,
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG,
         "classpath:classpath-repos.yaml");
     TestConfigServer.serverStart();
     logger.info("Running " + GetYamlFromClasspathITCase.class.getName());

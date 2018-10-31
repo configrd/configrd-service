@@ -19,13 +19,12 @@ public class TestS3StreamSource {
   public void init() {
 
     Map<String, Object> vals = new HashMap<>();
-    Map<String, Object> defaults = new HashMap<>();
     vals.put(VaultRepoDef.USERNAME_FIELD, "AKIAI6M7YYJO3VNVWSZA");
     vals.put(VaultRepoDef.PASSWORD_FIELD, "/XK+4nqdMOmcJYBj+rshL0Z7qH8rGyTm3yqkWZKA");
     vals.put(VaultRepoDef.AUTH_METHOD_FIELD, "UserPass");
     vals.put(RepoDef.URI_FIELD, "https://s3.amazonaws.com/config.appcrossings.net");
 
-    stream = factory.newStreamSource("TestS3StreamSource", vals, defaults);
+    stream = factory.newStreamSource("TestS3StreamSource", vals);
 
   }
 

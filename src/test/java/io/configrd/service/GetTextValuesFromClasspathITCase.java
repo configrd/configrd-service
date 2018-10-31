@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.SystemProperties;
 
 
 public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
@@ -22,7 +22,7 @@ public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(ConfigSourceResolver.CONFIGRD_CONFIG, "classpath:classpath-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "classpath:classpath-repos.yaml");
     TestConfigServer.serverStart();
    
     logger.info("Running " + GetTextValuesFromClasspathITCase.class.getName());

@@ -1,7 +1,7 @@
 package io.configrd.service;
 
 import java.net.BindException;
-import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.SystemProperties;
 import io.configrd.service.ConfigrdServer;
 
 public abstract class TestConfigServer {
@@ -29,7 +29,7 @@ public abstract class TestConfigServer {
       server.stop();
 
     server = null;    
-    System.clearProperty(ConfigSourceResolver.CONFIGRD_CONFIG);
+    System.clearProperty(SystemProperties.CONFIGRD_CONFIG);
   }
 
 }
