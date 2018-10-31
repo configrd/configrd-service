@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.metrics.RequestMetricCollector;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.AmazonS3URI;
@@ -57,7 +58,8 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
           Boolean.valueOf(System.getProperty(io.configrd.service.SystemProperties.S3_TRUST_CERTS)));
     }
 
-    s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds).build();
+    s3Client = AmazonS3ClientBuilder.standard().withCredentials(creds)
+        .withMetricsCollector(RequestMetricCollector.NONE).build();
     bucketName = extractBucketName(repoDef.toURI());
 
   }
