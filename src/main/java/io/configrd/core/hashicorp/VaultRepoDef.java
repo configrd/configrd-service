@@ -14,7 +14,7 @@ import io.configrd.core.util.URIBuilder;
 import io.configrd.core.util.UriUtil;
 
 @SuppressWarnings("serial")
-public class HashicorpRepoDef extends DefaultRepoDef implements SecuredRepo {
+public class VaultRepoDef extends DefaultRepoDef implements SecuredRepo {
 
   public static final String AUTH_METHOD_FIELD = "authMethod";
 
@@ -45,7 +45,7 @@ public class HashicorpRepoDef extends DefaultRepoDef implements SecuredRepo {
     return passwordFile;
   }
 
-  public HashicorpRepoDef(String name, Map<String, Object> values) {
+  public VaultRepoDef(String name, Map<String, Object> values) {
 
     super(name);
 

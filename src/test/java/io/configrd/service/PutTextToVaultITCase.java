@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.SystemProperties;
 import io.configrd.core.hashicorp.VaultImportUtil;
 
 public class PutTextToVaultITCase {
@@ -30,7 +30,7 @@ public class PutTextToVaultITCase {
 
   @BeforeClass
   public static void setup() throws Throwable {
-    System.setProperty(ConfigSourceResolver.CONFIGRD_CONFIG, "classpath:vault-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "classpath:vault-repos.yaml");
     TestConfigServer.serverStart();
     logger.info("Running " + PutTextToVaultITCase.class.getName());
   }

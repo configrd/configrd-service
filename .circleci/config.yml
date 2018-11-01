@@ -2,7 +2,7 @@ version: 2
 jobs:
   build-service:
     docker:
-    - image: circleci/openjdk:8-jdk
+    - image: circleci/openjdk:8u171-jdk-stretch
     environment:
       CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
     steps:
@@ -15,16 +15,18 @@ jobs:
           ./cc-test-reporter before-build
     - run:
         name: Download vault
+        command: "curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip\
+          \ --output ./vault.zip\nunzip vault.zip\n./vault server -dev &\nexport VAULT_ADDR=http://127.0.0.1:8200\n\
+          sleep 2\n./vault auth enable userpass\n./vault write auth/userpass/users/test\
+          \ password=password policies=admins\n./vault policy write admins src/test/resources/vault-setup/admin.hcl\
+          \  \n"
+    - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
+    - run:
+        name: Upload Code Climate test-reporter
         command: |
-          curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip --output ./vault.zip
-          unzip vault.zip
-          ./vault server -dev &
-          export VAULT_ADDR=http://127.0.0.1:8200
-          sleep 2
-          ./vault auth enable userpass
-          ./vault write auth/userpass/users/test password=password policies=admins
-          ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
-    - run: mvn clean install -B -DskipITs -s .circleci/settings.xml
+          cd src/main/java
+          ../../../cc-test-reporter format-coverage -d -t jacoco ../../../target/site/jacoco/jacoco.xml -o ../../../target/coverage/codeclimate.json
+          ../../../cc-test-reporter upload-coverage -d -i ../../../target/coverage/codeclimate.json
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
@@ -33,36 +35,9 @@ jobs:
         - ./cc-test-reporter
         - ~/.m2
     - store_test_results:
-        path: target/surefire-reports
-  integration-test:
-    docker:
-    - image: circleci/openjdk:8-jdk
-    environment:
-      CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
-    steps:
-    - checkout
-    - restore_cache:
-        key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
-    - run:
-        name: Download vault
-        command: |
-          ./vault server -dev &
-          export VAULT_ADDR=http://127.0.0.1:8200
-          sleep 2
-          ./vault auth enable userpass
-          ./vault write auth/userpass/users/test password=password policies=admins
-          ./vault policy write admins src/test/resources/vault-setup/admin.hcl  
-    - run: mvn integration-test verify -B  -s .circleci/settings.xml
-    - run:
-        name: Upload Code Climate test-reporter
-        command: |
-          cd src/main/java
-          ../../../cc-test-reporter format-coverage -d -t jacoco ../../../target/site/jacoco/jacoco.xml -o ../../../target/coverage/codeclimate.json
-          ../../../cc-test-reporter upload-coverage -d -i ../../../target/coverage/codeclimate.json
-    - store_test_results:
-        path: target/failsafe-reports
-    - store_artifacts:
-        path: target
+        paths:
+        - target/surefire-reports
+        - target/failsafe-report
   deploy-service:
     docker:
     - image: circleci/openjdk:8-jdk
@@ -98,12 +73,9 @@ workflows:
   build_push:
     jobs:
     - build-service
-    - integration-test:
-        requires:
-        - build-service
     - deploy-service:
         requires:
-        - integration-test
+        - build-service
     - docker-push:
         filters:
           branches:

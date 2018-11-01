@@ -1,1 +1,2 @@
 io.configrd.core.hashicorp.HashicorpVaultConfigSourceFactory
+io.configrd.core.aws.s3.S3ConfigSourceFactory

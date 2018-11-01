@@ -1,6 +1,5 @@
 package io.configrd.core.hashicorp;
 
-import java.util.HashMap;
 import java.util.Map;
 import io.configrd.core.source.ConfigSource;
 import io.configrd.core.source.ConfigSourceFactory;
@@ -8,10 +7,9 @@ import io.configrd.core.source.ConfigSourceFactory;
 public class HashicorpVaultConfigSourceFactory implements ConfigSourceFactory {
 
   @Override
-  public ConfigSource newConfigSource(String name, Map<String, Object> values,
-      Map<String, Object> defaults) {
+  public ConfigSource newConfigSource(String name, Map<String, Object> values) {
 
-    HashicorpVaultStreamSource source = newStreamSource(name, values, defaults);
+    HashicorpVaultStreamSource source = newStreamSource(name, values);
     HashicorpVaultConfigSource configSource = new HashicorpVaultConfigSource(source, values);
     return configSource;
   }
@@ -27,13 +25,9 @@ public class HashicorpVaultConfigSourceFactory implements ConfigSourceFactory {
     return HashicorpVaultStreamSource.HASHICORP_VAULT;
   }
 
-  public HashicorpVaultStreamSource newStreamSource(String name, Map<String, Object> values,
-      Map<String, Object> defaults) {
-    
-    final Map<String, Object> merged = new HashMap<>(defaults);
-    merged.putAll(values);
+  public HashicorpVaultStreamSource newStreamSource(String name, Map<String, Object> values) {
 
-    HashicorpRepoDef def = new HashicorpRepoDef(name, merged);
+    VaultRepoDef def = new VaultRepoDef(name, values);
 
     if (def.valid().length > 0) {
       throw new IllegalArgumentException(String.join(",", def.valid()));

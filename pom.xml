@@ -63,7 +63,6 @@
 			<artifactId>configrd-core</artifactId>
 			<version>2.0.0</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
 			<artifactId>jersey-client</artifactId>
@@ -72,7 +71,6 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>io.undertow</groupId>
 			<artifactId>undertow-core</artifactId>
@@ -121,6 +119,10 @@
 			<artifactId>aws-java-sdk-s3</artifactId>
 			<version>1.11.285</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+		</dependency>
 	</dependencies>
 	<properties>
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>
@@ -140,38 +142,17 @@
 							<goal>prepare-agent</goal>
 						</goals>
 						<configuration>
-							<destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+							<destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
 							<propertyName>${surefireArgLine}</propertyName>
-						</configuration>
-					</execution>
-					<execution>
-						<id>pre-integration-test</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-						<configuration>
-							<destFile>${project.build.directory}/coverage-reports/jacoco-it.exec</destFile>
-							<propertyName>${failsafeArgLine}</propertyName>
 						</configuration>
 					</execution>
 					<execution>
 						<id>post-integration-test</id>
 						<phase>post-integration-test</phase>
 						<goals>
-							<goal>merge</goal>
 							<goal>report</goal>
 						</goals>
 						<configuration>
-							<fileSets>
-								<fileSet>
-									<directory>${project.build.directory}/coverage-reports</directory>
-									<includes>
-										<include>*t.exec</include>
-									</includes>
-								</fileSet>
-							</fileSets>
-							<destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
 							<dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
 						</configuration>
 					</execution>
@@ -220,6 +201,10 @@
 					<includes>
 						<include>**/*ITCase.java</include>
 					</includes>
+					<systemPropertyVariables>
+						<aws.accessKeyId>${aws.accessKey}</aws.accessKeyId>
+						<aws.secretKey>${aws.secret}</aws.secretKey>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -11,9 +11,9 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import io.configrd.core.exception.AuthenticationException;
 import io.configrd.core.hashicorp.Auth;
 import io.configrd.core.hashicorp.AuthResponse;
-import io.configrd.core.hashicorp.HashicorpRepoDef;
+import io.configrd.core.hashicorp.VaultRepoDef;
 import io.configrd.core.hashicorp.VaultAuthenticator;
-import io.configrd.core.hashicorp.HashicorpRepoDef.AuthMethod;
+import io.configrd.core.hashicorp.VaultRepoDef.AuthMethod;
 
 public class VaultAuthenticatorITCase {
 
@@ -31,7 +31,7 @@ public class VaultAuthenticatorITCase {
   @Test
   public void testGetTokenUserPass() {
 
-    HashicorpRepoDef def = new HashicorpRepoDef("VaultAuthenticatorITCase", new HashMap<>());
+    VaultRepoDef def = new VaultRepoDef("VaultAuthenticatorITCase", new HashMap<>());
     def.setUsername("test");
     def.setPassword("password");
     def.setAuthMethod(AuthMethod.UserPass.name());
@@ -50,7 +50,7 @@ public class VaultAuthenticatorITCase {
   //@Test
   public void testGetTokenAwsPkcs7() {   
 
-    HashicorpRepoDef def = new HashicorpRepoDef("VaultAuthenticatorITCase", new HashMap<>());
+    VaultRepoDef def = new VaultRepoDef("VaultAuthenticatorITCase", new HashMap<>());
     def.setAwsRoleArn("testRole");
     def.setAuthMethod(AuthMethod.AWS_PKCS7.name());
 

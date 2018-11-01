@@ -10,7 +10,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import io.configrd.core.hashicorp.HashicorpRepoDef;
+import io.configrd.core.hashicorp.VaultRepoDef;
 import io.configrd.core.hashicorp.HashicorpVaultConfigSourceFactory;
 import io.configrd.core.hashicorp.HashicorpVaultStreamSource;
 import io.configrd.core.source.PropertyPacket;
@@ -32,19 +32,19 @@ public class TestVaultStreamSource {
   public void init() {
 
     Map<String, Object> vals = new HashMap<>();
-    Map<String, Object> defaults = new HashMap<>();
-    vals.put(HashicorpRepoDef.USERNAME_FIELD, "test");
-    vals.put(HashicorpRepoDef.PASSWORD_FIELD, "password");
-    vals.put(HashicorpRepoDef.AUTH_METHOD_FIELD, "UserPass");
+
+    vals.put(VaultRepoDef.USERNAME_FIELD, "test");
+    vals.put(VaultRepoDef.PASSWORD_FIELD, "password");
+    vals.put(VaultRepoDef.AUTH_METHOD_FIELD, "UserPass");
     vals.put(RepoDef.URI_FIELD, URL);
 
-    stream = factory.newStreamSource("TestVaultStreamSource", vals, defaults);
+    stream = factory.newStreamSource("TestVaultStreamSource", vals);
   }
 
   @After
   public void cleanup() throws Exception {
 
-    String token = ((HashicorpRepoDef) stream.getSourceConfig()).getToken();
+    String token = ((VaultRepoDef) stream.getSourceConfig()).getToken();
 
     Assert.assertNotNull(token);
 

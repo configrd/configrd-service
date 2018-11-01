@@ -11,7 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.SystemProperties;
 
 public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
 
@@ -22,7 +22,7 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(ConfigSourceResolver.CONFIGRD_CONFIG,
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG,
         "file:/tmp/junit/file-repos.yaml");
 
     System.out.println(
