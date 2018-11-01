@@ -4,7 +4,7 @@ jobs:
     docker:
     - image: circleci/openjdk:8u171-jdk-stretch
     environment:
-      CC_TEST_REPORTER_ID: 4c5109885099b7b3280b919cda43c0202c2969f658484dc1c55b6588561b8c6c
+      CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
     steps:
     - checkout
     - run:
