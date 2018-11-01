@@ -226,7 +226,7 @@
 							<archive>
 								<manifest>
 									<addClasspath>true</addClasspath>
-									<mainClass>io.configrd.core.ConfigrdServer</mainClass>
+									<mainClass>io.configrd.service.ConfigrdServer</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
