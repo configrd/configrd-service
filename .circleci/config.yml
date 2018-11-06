@@ -8,12 +8,6 @@ jobs:
     steps:
     - checkout
     - run:
-        name: Setup Code Climate test-reporter
-        command: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-    - run:
         name: Download vault
         command: "curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip\
           \ --output ./vault.zip\nunzip vault.zip\n./vault server -dev &\nexport VAULT_ADDR=http://127.0.0.1:8200\n\
@@ -21,18 +15,11 @@ jobs:
           \ password=password policies=admins\n./vault policy write admins src/test/resources/vault-setup/admin.hcl\
           \  \n"
     - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
-    - run:
-        name: Upload Code Climate test-reporter
-        command: |
-          cd src/main/java
-          ../../../cc-test-reporter format-coverage -d -t jacoco ../../../target/site/jacoco/jacoco.xml -o ../../../target/coverage/codeclimate.json
-          ../../../cc-test-reporter upload-coverage -d -i ../../../target/coverage/codeclimate.json
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
         - target
         - ./vault
-        - ./cc-test-reporter
         - ~/.m2
     - store_test_results:
         paths:
