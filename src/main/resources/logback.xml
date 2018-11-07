@@ -8,7 +8,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="io.configrd.core" level="DEBUG" />
+	<logger name="io.configrd.core" level="INFO" />
 
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
