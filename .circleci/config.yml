@@ -9,11 +9,14 @@ jobs:
     - checkout
     - run:
         name: Download vault
-        command: "curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip\
-          \ --output ./vault.zip\nunzip vault.zip\n./vault server -dev &\nexport VAULT_ADDR=http://127.0.0.1:8200\n\
-          sleep 2\n./vault auth enable userpass\n./vault write auth/userpass/users/test\
-          \ password=password policies=admins\n./vault policy write admins src/test/resources/vault-setup/admin.hcl\
-          \  \n"
+        command: "curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip --output ./vault.zip
+                  unzip vault.zip
+                  ./vault server -dev &
+                  export VAULT_ADDR=http://127.0.0.1:8200
+                  sleep 2
+                  ./vault auth enable userpass
+                  ./vault write auth/userpass/users/test password=password policies=admins
+                  ./vault policy write admins src/test/resources/vault-setup/admin.hcl"
     - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}

@@ -18,7 +18,7 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty("configrd.config.source", "s3");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_SOURCE, "s3");
 
     System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
         "https://config.appcrossings.net.s3.amazonaws.com/s3-repos.yaml");
@@ -31,7 +31,8 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
   @AfterClass
   public static void teardown() throws Exception {
     TestConfigServer.serverStop();
-    System.clearProperty("configrd.config.source");
+    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_SOURCE);
+    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_URI);
   }
 
   @Before
