@@ -26,9 +26,13 @@ public class ConfigrdServiceImpl implements ConfigrdService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigrdService.class);
 
-  private final ConfigSourceResolver resolver = new ConfigSourceResolver();
+  private final ConfigSourceResolver resolver;
 
   protected StringUtils strings;
+
+  public ConfigrdServiceImpl(ConfigSourceResolver resolver) {
+    this.resolver = resolver;
+  }
 
   @Override
   public Response getTextProperties(String repo, String path, Boolean traverse, Set<String> named) {
