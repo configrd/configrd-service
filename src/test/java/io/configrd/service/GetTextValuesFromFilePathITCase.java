@@ -22,7 +22,7 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG,
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
         "file:/tmp/junit/file-repos.yaml");
 
     System.out.println(

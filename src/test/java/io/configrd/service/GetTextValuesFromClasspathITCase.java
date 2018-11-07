@@ -22,7 +22,7 @@ public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "classpath:classpath-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
     TestConfigServer.serverStart();
    
     logger.info("Running " + GetTextValuesFromClasspathITCase.class.getName());

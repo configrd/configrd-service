@@ -29,7 +29,7 @@ public abstract class TestConfigServer {
       server.stop();
 
     server = null;    
-    System.clearProperty(SystemProperties.CONFIGRD_CONFIG);
+    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_URI);
   }
 
 }

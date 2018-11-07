@@ -19,7 +19,7 @@ public class GetJsonFromClasspathITCase extends AbstractTestSuiteITCase {
   private static final Logger logger = LoggerFactory.getLogger(GetJsonFromClasspathITCase.class);
 
   static {
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "classpath:classpath-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
   }
 
   @BeforeClass

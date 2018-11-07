@@ -21,7 +21,7 @@ public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG,
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
         "classpath:classpath-repos.yaml");
     TestConfigServer.serverStart();
     logger.info("Running " + GetYamlFromClasspathITCase.class.getName());

@@ -23,6 +23,7 @@ public class ConfigrdServer {
   public static final String DEFAULT_PORT = "8891";
 
   public static void main(String[] args) throws Throwable {
+    
     System.setProperty("org.jboss.logging.provider", "slf4j");
     server = new ConfigrdServer();
 

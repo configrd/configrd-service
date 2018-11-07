@@ -21,7 +21,7 @@ public class GetTestValuesFromHttpITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "http://config.appcrossings.net/http-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "http://config.appcrossings.net/http-repos.yaml");
     TestConfigServer.serverStart();
     logger.info("Running " + GetTestValuesFromHttpITCase.class.getName());
 

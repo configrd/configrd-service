@@ -19,7 +19,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG, "classpath:vault-repos.yaml");
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:vault-repos.yaml");
     TestConfigServer.serverStart();
     logger.info("Running " + GetTestValuesFromVaultITCase.class.getName());
 

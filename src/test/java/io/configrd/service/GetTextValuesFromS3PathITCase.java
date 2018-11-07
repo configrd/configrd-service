@@ -20,7 +20,7 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
 
     System.setProperty("configrd.config.source", "s3");
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG,
+    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
         "https://config.appcrossings.net.s3.amazonaws.com/s3-repos.yaml");
 
     TestConfigServer.serverStart();
