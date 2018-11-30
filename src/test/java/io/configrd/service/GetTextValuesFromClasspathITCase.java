@@ -1,6 +1,7 @@
 package io.configrd.service;
 
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.junit.AfterClass;
@@ -16,15 +17,15 @@ public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
 
   private static final Logger logger =
       LoggerFactory.getLogger(GetTextValuesFromClasspathITCase.class);
- 
-  
-  
+
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
-    TestConfigServer.serverStart();
-   
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
+
+    TestConfigServer.serverStart(init);
+
     logger.info("Running " + GetTextValuesFromClasspathITCase.class.getName());
 
   }
@@ -54,7 +55,7 @@ public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
   public void testGetPropertiesFromYamlFile() throws Exception {
     super.testGetPropertiesFromYamlFile();
   }
-  
+
   @Override
   public Properties convert(String body) throws Exception {
     Properties props = new Properties();

@@ -72,7 +72,7 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
 
     String path = org.apache.commons.lang3.StringUtils.removeStart(uri.getPath(), "/");
 
-    logger.debug("Requesting bucket " + bucketName + ", path: " + path);
+    logger.trace("Requesting bucket " + bucketName + ", path: " + path);
 
     try (S3Object object = s3Client.getObject(bucketName, path);) {
 
@@ -102,7 +102,7 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
 
     }
 
-    logger.debug(
+    logger.trace(
         "Amazon Connector Took: " + (System.currentTimeMillis() - start) + "ms to fetch " + uri);
 
     return Optional.ofNullable(packet);
@@ -170,7 +170,7 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
       // TODO: handle exception
     }
 
-    logger.debug(
+    logger.trace(
         "Amazon Connector Upload of object " + path + " of size " + content.length() / 1048576
             + " MB took: " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
 

@@ -21,9 +21,10 @@ public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
-        "classpath:classpath-repos.yaml");
-    TestConfigServer.serverStart();
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
+
+    TestConfigServer.serverStart(init);
     logger.info("Running " + GetYamlFromClasspathITCase.class.getName());
   }
 
@@ -40,7 +41,7 @@ public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = new MediaType("application", "x-yam");
   }
-  
+
   @Test
   @Override
   public void testGetPropertiesFromJsonFile() throws Exception {

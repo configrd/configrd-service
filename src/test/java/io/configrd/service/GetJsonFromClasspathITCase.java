@@ -18,14 +18,13 @@ public class GetJsonFromClasspathITCase extends AbstractTestSuiteITCase {
 
   private static final Logger logger = LoggerFactory.getLogger(GetJsonFromClasspathITCase.class);
 
-  static {
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
-  }
-
   @BeforeClass
   public static void setup() throws Throwable {
 
-    TestConfigServer.serverStart();
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
+
+    TestConfigServer.serverStart(init);
     logger.info("Running " + GetJsonFromClasspathITCase.class.getName());
   }
 

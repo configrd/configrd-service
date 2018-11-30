@@ -10,9 +10,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 public class HealthCheckITCase extends TestConfigServer {
-
 
   protected Client client;
   protected WebTarget target;
@@ -21,7 +19,7 @@ public class HealthCheckITCase extends TestConfigServer {
   
   @BeforeClass
   public static void setup() throws Throwable {
-    TestConfigServer.serverStart();
+    TestConfigServer.serverStart(TestConfigServer.initParams());
   }
 
   @AfterClass

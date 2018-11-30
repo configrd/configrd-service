@@ -1,22 +1,28 @@
 package io.configrd.service;
 
 import java.net.BindException;
-import io.configrd.core.SystemProperties;
-import io.configrd.service.ConfigrdServer;
+import java.util.HashMap;
+import java.util.Map;
+import io.configrd.core.ConfigSourceResolver;
 
 public abstract class TestConfigServer {
 
   protected static ConfigrdServer server;
-  public static final String SERVER_PORT = "8891";
 
-  public static void serverStart() throws Throwable {
+  public static Map<String, Object> initParams() {
+    Map<String, Object> init = new HashMap<>();
+    init.put(io.configrd.service.SystemProperties.CONFIGRD_SERVER_PORT, "8891");
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
+        ConfigSourceResolver.DEFAULT_CONFIGRD_CONFIG_URI);
+    return init;
+  }
 
-    System.setProperty("org.jboss.logging.provider", "slf4j");
-    
+  public static void serverStart(Map<String, Object> init) throws Throwable {
+
     server = new ConfigrdServer();
 
     try {
-      server.start(SERVER_PORT);
+      server.start(init);
     } catch (BindException e) {
       // ignore
     } catch (Throwable e) {
@@ -28,8 +34,7 @@ public abstract class TestConfigServer {
     if (server != null)
       server.stop();
 
-    server = null;    
-    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_URI);
+    server = null;
   }
 
 }

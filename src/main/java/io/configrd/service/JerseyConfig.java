@@ -10,13 +10,13 @@ public class JerseyConfig extends ResourceConfig {
 
   private final ConfigrdService service;
 
-  private static final String configrdConfigUri =
-      System.getProperty(SystemProperties.CONFIGRD_CONFIG_URI);
-  
-  private static final String configrdConfigStreamSource =
-      System.getProperty(SystemProperties.CONFIGRD_CONFIG_SOURCE);
-
   public JerseyConfig() {
+
+    String configrdConfigUri =
+        (String) InitializationContext.get().params().get(SystemProperties.CONFIGRD_CONFIG_URI);
+
+    String configrdConfigStreamSource =
+        (String) InitializationContext.get().params().get(SystemProperties.CONFIGRD_CONFIG_SOURCE);
 
     ConfigSourceResolver resolver =
         new ConfigSourceResolver(configrdConfigUri, configrdConfigStreamSource);

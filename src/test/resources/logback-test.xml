@@ -9,9 +9,9 @@
 	</appender>
 
 	<logger name="io.configrd.core" level="DEBUG" />
-	<logger name="com.amazonaws" level="DEBUG"/>
+	<logger name="com.amazonaws" level="ERROR"/>
 
-	<root level="INFO">
+	<root level="ERROR">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>

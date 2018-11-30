@@ -1,6 +1,7 @@
 package io.configrd.service;
 
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.junit.AfterClass;
@@ -19,8 +20,11 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:vault-repos.yaml");
-    TestConfigServer.serverStart();
+      Map<String, Object> init = TestConfigServer.initParams();
+      init.put(SystemProperties.CONFIGRD_CONFIG_URI,
+          "classpath:vault-repos.yaml");
+    
+    TestConfigServer.serverStart(init);
     logger.info("Running " + GetTestValuesFromVaultITCase.class.getName());
 
   }

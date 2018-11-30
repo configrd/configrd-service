@@ -1,6 +1,7 @@
 package io.configrd.service;
 
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.junit.AfterClass;
@@ -13,16 +14,19 @@ import io.configrd.core.SystemProperties;
 
 public class GetTestValuesFromHttpITCase extends AbstractTestSuiteITCase {
 
-  private static final Logger logger =
-      LoggerFactory.getLogger(GetTestValuesFromHttpITCase.class);
+  private static final Logger logger = LoggerFactory.getLogger(GetTestValuesFromHttpITCase.class);
 
- 
- 
+
+
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "http://config.appcrossings.net/http-repos.yaml");
-    TestConfigServer.serverStart();
+
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
+        "http://config.appcrossings.net/http-repos.yaml");
+
+    TestConfigServer.serverStart(init);
     logger.info("Running " + GetTestValuesFromHttpITCase.class.getName());
 
   }
@@ -40,7 +44,7 @@ public class GetTestValuesFromHttpITCase extends AbstractTestSuiteITCase {
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = MediaType.TEXT_PLAIN_TYPE;
   }
-  
+
   @Test
   @Override
   public void testGetPropertiesFromJsonFile() throws Exception {

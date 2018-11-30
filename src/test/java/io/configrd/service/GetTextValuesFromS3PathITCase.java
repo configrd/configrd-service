@@ -1,6 +1,7 @@
 package io.configrd.service;
 
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.junit.AfterClass;
@@ -18,12 +19,12 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_SOURCE, "s3");
-
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
         "https://config.appcrossings.net.s3.amazonaws.com/s3-repos.yaml");
+    init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE, "s3");
 
-    TestConfigServer.serverStart();
+    TestConfigServer.serverStart(init);
     logger.info("Running " + GetTextValuesFromS3PathITCase.class.getName());
 
   }
@@ -31,8 +32,6 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
   @AfterClass
   public static void teardown() throws Exception {
     TestConfigServer.serverStop();
-    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_SOURCE);
-    System.clearProperty(SystemProperties.CONFIGRD_CONFIG_URI);
   }
 
   @Before

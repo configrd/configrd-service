@@ -11,7 +11,6 @@ import io.configrd.core.source.SecuredRepo;
 import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
 import io.configrd.core.util.UriUtil;
-import io.configrd.service.SystemProperties;
 
 @SuppressWarnings("serial")
 public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedRepo {
@@ -30,8 +29,7 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
 
   private String password;
 
-  private Boolean trustCert =
-      Boolean.valueOf(System.getProperty(SystemProperties.S3_TRUST_CERTS, "false"));
+  private Boolean trustCert = false;
 
   private String username;
 
@@ -125,8 +123,8 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
       err.add("Uri must be absolute");
     }
 
-    if (UriUtil.validate(uri).isScheme("s3", "https", "http").invalid()) {
-      err.add("Uri must be start with s3://");
+    if (UriUtil.validate(uri).isScheme("https", "http").invalid()) {
+      err.add("Uri must be start with http/s");
     }
 
     return err.toArray(new String[] {});

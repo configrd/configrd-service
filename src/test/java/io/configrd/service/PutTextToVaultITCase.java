@@ -1,5 +1,6 @@
 package io.configrd.service;
 
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -17,7 +18,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.configrd.core.SystemProperties;
-import io.configrd.core.hashicorp.VaultImportUtil;
 
 public class PutTextToVaultITCase {
 
@@ -30,8 +30,11 @@ public class PutTextToVaultITCase {
 
   @BeforeClass
   public static void setup() throws Throwable {
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:vault-repos.yaml");
-    TestConfigServer.serverStart();
+
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:vault-repos.yaml");
+
+    TestConfigServer.serverStart(init);
     logger.info("Running " + PutTextToVaultITCase.class.getName());
   }
 

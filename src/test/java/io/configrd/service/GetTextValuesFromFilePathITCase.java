@@ -2,6 +2,7 @@ package io.configrd.service;
 
 import java.io.File;
 import java.io.StringReader;
+import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
@@ -18,12 +19,9 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
   private static final Logger logger =
       LoggerFactory.getLogger(GetTextValuesFromFilePathITCase.class);
 
-  
+
   @BeforeClass
   public static void setup() throws Throwable {
-
-    System.setProperty(SystemProperties.CONFIGRD_CONFIG_URI,
-        "file:/tmp/junit/file-repos.yaml");
 
     System.out.println(
         "from: " + FileUtils.toFile(GetTextValuesFromFilePathITCase.class.getResource("/")));
@@ -34,7 +32,10 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
         FileUtils.toFile(GetTextValuesFromFilePathITCase.class.getResource("/")),
         new File("/tmp/junit"));
 
-    TestConfigServer.serverStart();
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "file:/tmp/junit/file-repos.yaml");
+
+    TestConfigServer.serverStart(init);
 
     logger.info("Running " + GetTextValuesFromFilePathITCase.class.getName());
 
@@ -54,7 +55,7 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = MediaType.TEXT_PLAIN_TYPE;
   }
-  
+
   @Test
   @Override
   public void testGetPropertiesFromJsonFile() throws Exception {
