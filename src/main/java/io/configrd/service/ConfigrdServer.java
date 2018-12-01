@@ -177,6 +177,7 @@ public class ConfigrdServer {
         deploymentManager.undeploy();
       }
 
+      InitializationContext.get().clear();
       undertow.stop();
       undertow = null;
 
