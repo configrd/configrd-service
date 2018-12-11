@@ -49,36 +49,26 @@ public class ConfigrdServer {
         .type(String.class).desc("Name of stream source (i.e. file, http, s3). Default: file")
         .build();
     options.addOption(stream);
-    /*
-     * Option accessKeyId = Option.builder("Daws.accessKeyId").optionalArg(true)
-     * 
-     * .argName("accessKeyId").hasArgs().numberOfArgs(2).valueSeparator('=') .type(String.class)
-     * .desc("AWS accessKeyId if loading configrd config from s3 with static credentials").build();
-     * options.addOption(accessKeyId); Option secretKey =
-     * Option.builder("Daws.secretKey").optionalArg(true).argName("secretKey")
-     * .hasArgs().numberOfArgs(1).valueSeparator('=').type(String.class)
-     * .desc("AWS secretKey if loading configrd config from s3 with static credentials").build();
-     * options.addOption(secretKey);
-     */
+  
     Option trustCert = new Option("trustCert", "Trust all HTTP certificates. Default: false");
     options.addOption(trustCert);
 
     final CommandLineParser parser = new DefaultParser();
     final HelpFormatter formatter = new HelpFormatter();
-    Map<String, Object> init = new HashMap<>();
+    final Map<String, Object> init = new HashMap<>();
     try {
       // parse the command line arguments
       CommandLine line = parser.parse(options, args);
 
       if (line.hasOption("help") || line.getArgList().isEmpty()) {
 
-        formatter.printHelp("java -jar configrd-service.jar [OPTIONS]", options);
+        formatter.printHelp("java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]", options);
         return;
 
       } else {
 
         if (line.hasOption("u")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_URI, line.getParsedOptionValue("u"));
+          init.put(SystemProperties.CONFIGRD_CONFIG_URI, line.getOptionValue("u"));
         }
 
         if (line.hasOption("p")) {
@@ -93,10 +83,11 @@ public class ConfigrdServer {
           init.put(SystemProperties.HTTP_TRUST_CERTS, line.getOptionValue("trustCert", "false"));
         }
       }
+      
     } catch (ParseException exp) {
       logger.error("Parsing failed.  Reason: " + exp.getMessage());
 
-      formatter.printHelp("java -jar configrd-service.jar [OPTIONS]", options);
+      formatter.printHelp("java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]", options);
       return;
     }
 
