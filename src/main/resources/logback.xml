@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+	<variable name="configrd.log.level" value="${configrd.log.level:-ERROR}" />
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
@@ -8,7 +9,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="io.configrd" level="INFO" />
+	<logger name="io.configrd" level="${configrd.log.level}" />
 
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />

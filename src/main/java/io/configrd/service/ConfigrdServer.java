@@ -31,6 +31,8 @@ public class ConfigrdServer {
   private DeploymentManager deploymentManager;
 
   public static final String DEFAULT_PORT = "9191";
+  public static final String DEFAULT_STREAMSOURCE = "file";
+  public static final String DEFAULT_TRUST_CERTS = "false";
 
   public static void main(String[] args) throws Throwable {
 
@@ -43,14 +45,14 @@ public class ConfigrdServer {
         .desc("Absolute path of configrd config uri").longOpt("uri").build();
     options.addOption(uri);
     Option port = Option.builder("p").optionalArg(true).argName("port").longOpt("port").hasArg()
-        .type(String.class).desc("Port number. Default: 9191").build();
+        .type(String.class).desc("Port number. Default: " + DEFAULT_PORT).build();
     options.addOption(port);
     Option stream = Option.builder("s").optionalArg(true).argName("name").longOpt("stream").hasArg()
-        .type(String.class).desc("Name of stream source (i.e. file, http, s3). Default: file")
+        .type(String.class).desc("Name of stream source (i.e. file, http, s3). Default: " + DEFAULT_STREAMSOURCE)
         .build();
     options.addOption(stream);
   
-    Option trustCert = new Option("trustCert", "Trust all HTTP certificates. Default: false");
+    Option trustCert = new Option("trustCert", "Trust all HTTP certificates. Default: " + DEFAULT_TRUST_CERTS);
     options.addOption(trustCert);
 
     final CommandLineParser parser = new DefaultParser();
@@ -76,11 +78,11 @@ public class ConfigrdServer {
         }
 
         if (line.hasOption("s")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE, line.getOptionValue("s", "file"));
+          init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE, line.getOptionValue("s", DEFAULT_STREAMSOURCE));
         }
 
         if (line.hasOption("trustCert")) {
-          init.put(SystemProperties.HTTP_TRUST_CERTS, line.getOptionValue("trustCert", "false"));
+          init.put(SystemProperties.HTTP_TRUST_CERTS, line.getOptionValue("trustCert", DEFAULT_TRUST_CERTS));
         }
       }
       
@@ -107,7 +109,9 @@ public class ConfigrdServer {
   }
 
   protected void start(Map<String, Object> initParama) throws Throwable {
-
+    
+    logger.debug("Initializing using params:" + initParama);
+    
     InitializationContext.get().params().putAll(initParama);
 
     long start = System.currentTimeMillis();
