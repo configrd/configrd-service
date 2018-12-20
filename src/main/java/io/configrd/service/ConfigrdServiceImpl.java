@@ -116,7 +116,7 @@ public class ConfigrdServiceImpl implements ConfigrdService {
   @Override
   public Response getJsonProperties(String repo, String path, Boolean traverse, Set<String> named) {
 
-    logger.debug("Requested path" + path);
+    logger.debug("Requested path " + path);
 
     Response resp = Response.status(Status.NOT_FOUND).build();
 
@@ -139,7 +139,7 @@ public class ConfigrdServiceImpl implements ConfigrdService {
   public Response getYamlProperties(String repo, String path, Boolean traverse, Set<String> named)
       throws Exception {
 
-    logger.debug("Requested path" + path);
+    logger.debug("Requested path " + path);
 
     Response resp = Response.status(Status.NOT_FOUND).build();
 

@@ -6,3 +6,5 @@
 /test-output/
 /.springBeans
 /run-tests.sh
+/boot-start.sh
+/docker-start.sh

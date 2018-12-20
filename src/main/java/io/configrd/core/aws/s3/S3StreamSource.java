@@ -72,7 +72,7 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
 
     String path = org.apache.commons.lang3.StringUtils.removeStart(uri.getPath(), "/");
 
-    logger.trace("Requesting bucket " + bucketName + ", path: " + path);
+    logger.debug("Requesting bucket " + bucketName + ", path: " + path);
 
     try (S3Object object = s3Client.getObject(bucketName, path);) {
 
