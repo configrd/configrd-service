@@ -39,7 +39,7 @@ public interface ConfigrdService {
   @Path("/{path:.{0,}}")
   @Consumes({MediaType.WILDCARD})
   @Produces({MediaType.APPLICATION_JSON})
-  Response getJsonProperties(@QueryParam("repo") String repo, @PathParam("path") String path,
+  Response getJsonProperties(@QueryParam("r") String repo, @PathParam("path") String path,
       @DefaultValue("true") @QueryParam("t") Boolean traverse, @QueryParam("p") Set<String> named);
 
 
@@ -58,7 +58,7 @@ public interface ConfigrdService {
   @Path("/{path:.{0,}}")
   @Consumes({MediaType.WILDCARD})
   @Produces({MediaType.TEXT_PLAIN})
-  Response getTextProperties(@QueryParam("repo") String repo, @PathParam("path") String path,
+  Response getTextProperties(@QueryParam("r") String repo, @PathParam("path") String path,
       @DefaultValue("true") @QueryParam("t") Boolean traverse, @QueryParam("p") Set<String> named);
 
   /**
@@ -75,8 +75,8 @@ public interface ConfigrdService {
   @GET
   @Path("/{path:.{0,}}")
   @Consumes({MediaType.WILDCARD})
-  @Produces({"application/x-yam"})
-  Response getYamlProperties(@QueryParam("repo") String repo, @PathParam("path") String path,
+  @Produces({"application/yaml"})
+  Response getYamlProperties(@QueryParam("r") String repo, @PathParam("path") String path,
       @DefaultValue("true") @QueryParam("t") Boolean traverse, @QueryParam("p") Set<String> named)
       throws Exception;
 
@@ -95,7 +95,7 @@ public interface ConfigrdService {
   @Path("/{path:.{0,}}")
   @Consumes({MediaType.TEXT_PLAIN})
   @Produces({MediaType.TEXT_PLAIN})
-  Response putTextProperties(@QueryParam("repo") String repo, @PathParam("path") String path,
+  Response putTextProperties(@QueryParam("r") String repo, @PathParam("path") String path,
       @HeaderParam("Etag") String etag, InputStream body) throws Exception;
 
 }

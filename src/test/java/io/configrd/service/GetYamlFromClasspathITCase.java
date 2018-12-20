@@ -39,7 +39,7 @@ public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
     super.init();
     target = client.target("http://localhost:8891/configrd/v1/");
     content = MediaType.TEXT_PLAIN_TYPE;
-    accept = new MediaType("application", "x-yam");
+    accept = new MediaType("application", "yaml");
   }
 
   @Test

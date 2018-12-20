@@ -12,7 +12,7 @@ import org.junit.rules.TemporaryFolder;
 public class RepoLookupConfigByHostITCase extends LookupConfigByHostITCase {
 
   static {
-    System.setProperty("repo", "classpath:repo-defaults.yml");
+    System.setProperty("r", "classpath:repo-defaults.yml");
   }
 
   @Rule

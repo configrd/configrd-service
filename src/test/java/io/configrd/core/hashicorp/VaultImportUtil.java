@@ -50,7 +50,7 @@ public class VaultImportUtil {
             resp = client.target(target).path(relative).request(MediaType.TEXT_PLAIN_TYPE)
                 .put(Entity.text(content));
           } else {
-            resp = client.target(target).path(relative).queryParam("repo", repoName)
+            resp = client.target(target).path(relative).queryParam("r", repoName)
                 .request(MediaType.TEXT_PLAIN_TYPE).put(Entity.text(content));
           }
 

@@ -87,13 +87,13 @@ public class PutTextToVaultITCase {
     Properties props = new Properties();
     props.load(IOUtils.toInputStream(file, "UTF-8"));
 
-    Response resp = target.queryParam("repo", "appx-d").request(accept).put(Entity.text(file));
+    Response resp = target.queryParam("r", "appx-d").request(accept).put(Entity.text(file));
 
     Assert.assertEquals(Status.CREATED.getStatusCode(), resp.getStatus());
     String etag = (String) resp.getHeaders().getFirst("Etag");
     // Assert.assertNotNull(etag);
 
-    resp = target.queryParam("repo", "appx-d").request(accept).get();
+    resp = target.queryParam("r", "appx-d").request(accept).get();
     // Assert.assertNotNull(resp.getHeaders().getFirst("Etag"));
 
     // Assert.assertEquals(etag, resp.getHeaders().getFirst("Etag"));
@@ -114,14 +114,14 @@ public class PutTextToVaultITCase {
     Properties props = new Properties();
     props.load(IOUtils.toInputStream(file, "UTF-8"));
 
-    Response resp = target.path("/default.properties").queryParam("repo", "appx-d").request(accept)
+    Response resp = target.path("/default.properties").queryParam("r", "appx-d").request(accept)
         .put(Entity.text(file));
 
     Assert.assertEquals(Status.CREATED.getStatusCode(), resp.getStatus());
     String etag = (String) resp.getHeaders().getFirst("Etag");
     // Assert.assertNotNull(etag);
 
-    resp = target.path("/default.properties").queryParam("repo", "appx-d").request(accept).get();
+    resp = target.path("/default.properties").queryParam("r", "appx-d").request(accept).get();
     // Assert.assertNotNull(resp.getHeaders().getFirst("Etag"));
 
     // Assert.assertEquals(etag, resp.getHeaders().getFirst("Etag"));

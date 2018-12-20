@@ -42,7 +42,7 @@ public abstract class AbstractTestSuiteITCase {
   @Test
   public void testGetValuesFromNamedRepo() throws Exception {
 
-    Response resp = target.path("/").queryParam("repo", "classpath").request(accept).get();
+    Response resp = target.path("/").queryParam("r", "classpath").request(accept).get();
     Assert.assertEquals(200, resp.getStatus());
 
     String body = resp.readEntity(String.class);
@@ -60,7 +60,7 @@ public abstract class AbstractTestSuiteITCase {
   public void testGetValuesFromNamedRepoWithPath() throws Exception {
 
     Response resp =
-        target.path("/env/dev/simple").queryParam("repo", "classpath").request(accept).get();
+        target.path("/env/dev/simple").queryParam("r", "classpath").request(accept).get();
     Assert.assertEquals(200, resp.getStatus());
 
     String body = resp.readEntity(String.class);
@@ -108,7 +108,7 @@ public abstract class AbstractTestSuiteITCase {
   @Test
   public void testGetValuesFromNamedRepoWithNamedProfile() throws Exception {
 
-    Response resp = target.path("/").queryParam("repo", "default").queryParam("p", "simple")
+    Response resp = target.path("/").queryParam("r", "default").queryParam("p", "simple")
         .request(accept).get();
     Assert.assertEquals(200, resp.getStatus());
 
@@ -133,7 +133,7 @@ public abstract class AbstractTestSuiteITCase {
   @Test
   public void testAttemptNonExistingRepo() throws Exception {
 
-    Response resp = target.path("/").queryParam("repo", "dontexist").request(accept).get();
+    Response resp = target.path("/").queryParam("r", "dontexist").request(accept).get();
     Assert.assertEquals(404, resp.getStatus());
 
     String body = resp.readEntity(String.class);
@@ -207,7 +207,7 @@ public abstract class AbstractTestSuiteITCase {
   @Test
   public void testGetPropertiesWithoutTraverseAndNamedProfileNotSupported() throws Exception {
 
-    Response resp = target.path("/").queryParam("repo", "default").queryParam("p", "simple")
+    Response resp = target.path("/").queryParam("r", "default").queryParam("p", "simple")
         .queryParam("t", "false").request(accept).get();
 
     Assert.assertEquals(200, resp.getStatus());
@@ -228,7 +228,7 @@ public abstract class AbstractTestSuiteITCase {
   public void testTraversePropertiesToARepoRootOtherThanBasePath() throws Exception {
 
     Response resp =
-        target.path("/dev/simple").queryParam("repo", "classpath-env").request(accept).get();
+        target.path("/dev/simple").queryParam("r", "classpath-env").request(accept).get();
 
     Assert.assertEquals(200, resp.getStatus());
 
@@ -250,7 +250,7 @@ public abstract class AbstractTestSuiteITCase {
   public void testTraversePropertiesToARepoRootOtherThanBasePathWithNamedProfile()
       throws Exception {
 
-    Response resp = target.path("/").queryParam("repo", "classpath-env").queryParam("p", "simple")
+    Response resp = target.path("/").queryParam("r", "classpath-env").queryParam("p", "simple")
         .request(accept).get();
 
     Assert.assertEquals(200, resp.getStatus());
@@ -273,7 +273,7 @@ public abstract class AbstractTestSuiteITCase {
   public void testGetPropertiesAtRepoRootOtherThanBasePath() throws Exception {
 
     // classpath:env doen't have any properties defined
-    Response resp = target.path("/").queryParam("repo", "classpath-env").request(accept).get();
+    Response resp = target.path("/").queryParam("r", "classpath-env").request(accept).get();
 
     Assert.assertEquals(404, resp.getStatus());
 
@@ -282,7 +282,7 @@ public abstract class AbstractTestSuiteITCase {
   
   public void testGetPropertiesFromJsonFile() throws Exception {
 
-    Response resp = target.path("/env/dev/json").queryParam("repo", "appx-j").request(accept).get();
+    Response resp = target.path("/env/dev/json").queryParam("r", "appx-j").request(accept).get();
 
     Assert.assertEquals(200, resp.getStatus());
 
@@ -316,7 +316,7 @@ public abstract class AbstractTestSuiteITCase {
   
   public void testGetPropertiesFromYamlFile() throws Exception {
 
-    Response resp = target.path("/env/dev/yaml").queryParam("repo", "appx-y").request(accept).get();
+    Response resp = target.path("/env/dev/yaml").queryParam("r", "appx-y").request(accept).get();
 
     Assert.assertEquals(200, resp.getStatus());
 
