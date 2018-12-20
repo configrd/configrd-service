@@ -92,7 +92,8 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
     } catch (AmazonS3Exception e) {
 
       if (e.getStatusCode() != 404) {
-        logger.error(e.getMessage(), e);
+        logger.error(e.getMessage());
+        Throwables.propagate(e);
       }
 
     } catch (IOException io) {
