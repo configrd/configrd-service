@@ -1,5 +1,6 @@
 package io.configrd.service;
 
+import java.util.Map;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -9,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import io.configrd.core.SystemProperties;
 
 public class HealthCheckITCase extends TestConfigServer {
 
@@ -16,10 +18,14 @@ public class HealthCheckITCase extends TestConfigServer {
   protected WebTarget target;
   protected MediaType content;
   protected MediaType accept;
-  
+
   @BeforeClass
   public static void setup() throws Throwable {
-    TestConfigServer.serverStart(TestConfigServer.initParams());
+
+    Map<String, Object> init = TestConfigServer.initParams();
+    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
+
+    TestConfigServer.serverStart(init);
   }
 
   @AfterClass
@@ -39,7 +45,5 @@ public class HealthCheckITCase extends TestConfigServer {
     Assert.assertTrue(body.contains("version"));
     Assert.assertTrue(body.contains("build"));
   }
-
-
 
 }

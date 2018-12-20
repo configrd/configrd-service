@@ -3,7 +3,6 @@ package io.configrd.service;
 import java.net.BindException;
 import java.util.HashMap;
 import java.util.Map;
-import io.configrd.core.ConfigSourceResolver;
 
 public abstract class TestConfigServer {
 
@@ -12,8 +11,6 @@ public abstract class TestConfigServer {
   public static Map<String, Object> initParams() {
     Map<String, Object> init = new HashMap<>();
     init.put(io.configrd.service.SystemProperties.CONFIGRD_SERVER_PORT, "8891");
-    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
-        ConfigSourceResolver.DEFAULT_CONFIGRD_CONFIG_URI);
     return init;
   }
 
