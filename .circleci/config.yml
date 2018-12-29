@@ -17,7 +17,7 @@ jobs:
                   sleep 2
                   ./vault auth enable userpass
                   ./vault write auth/userpass/users/test password=password policies=admins
-                  ./vault policy write admins src/test/resources/vault-setup/admin.hcl
+                  ./vault policy write admins src/test/resources/vault/admin.hcl
     - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
