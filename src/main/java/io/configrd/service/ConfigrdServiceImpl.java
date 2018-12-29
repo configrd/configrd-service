@@ -148,7 +148,7 @@ public class ConfigrdServiceImpl implements ConfigrdService {
     if (!props.isEmpty()) {
 
       String jsonAsYaml = new YAMLMapper().writeValueAsString(PropertiesProcessor.toMap(props));
-      resp = Response.ok(jsonAsYaml, "application/x-yml").encoding("UTF-8").build();
+      resp = Response.ok(jsonAsYaml, "application/yaml").encoding("UTF-8").build();
 
     }
 

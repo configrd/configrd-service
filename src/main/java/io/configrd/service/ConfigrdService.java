@@ -75,7 +75,7 @@ public interface ConfigrdService {
   @GET
   @Path("/{path:.{0,}}")
   @Consumes({MediaType.WILDCARD})
-  @Produces({"application/x-yam"})
+  @Produces({"application/yaml"})
   Response getYamlProperties(@QueryParam("repo") String repo, @PathParam("path") String path,
       @DefaultValue("true") @QueryParam("t") Boolean traverse, @QueryParam("p") Set<String> named)
       throws Exception;

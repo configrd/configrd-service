@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import io.configrd.core.SystemProperties;
 import io.configrd.core.hashicorp.VaultImportUtil;
 
-public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
+public class GetTextValuesFromVaultITCase extends AbstractTestSuiteITCase {
 
-  private static final Logger logger = LoggerFactory.getLogger(GetTestValuesFromVaultITCase.class);
+  private static final Logger logger = LoggerFactory.getLogger(GetTextValuesFromVaultITCase.class);
 
   @BeforeClass
   public static void setup() throws Throwable {
@@ -24,7 +24,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
     init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:vault-repos.yaml");
 
     TestConfigServer.serverStart(init);
-    logger.info("Running " + GetTestValuesFromVaultITCase.class.getName());
+    logger.info("Running " + GetTextValuesFromVaultITCase.class.getName());
 
   }
 
@@ -46,7 +46,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetBasePropertiesWithoutTraverse() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", null);
 
     super.testGetBasePropertiesWithoutTraverse();
@@ -56,7 +56,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetPropertiesAtRepoRootOtherThanBasePath() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/env").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/env").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "classpath-env");
 
     super.testGetPropertiesAtRepoRootOtherThanBasePath();
@@ -66,7 +66,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetPropertiesWithoutTraverseAndNamedProfileNotSupported() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "default");
 
     super.testGetPropertiesWithoutTraverseAndNamedProfileNotSupported();
@@ -76,7 +76,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetValuesFromDefaultRepo() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", null);
 
     super.testGetValuesFromDefaultRepo();
@@ -86,7 +86,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetPropertiesAtPathWithoutTraverse() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", null);
 
     super.testGetPropertiesAtPathWithoutTraverse();
@@ -97,7 +97,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetValuesFromDefaultRepoWithNamedProfile() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", null);
 
     super.testGetValuesFromDefaultRepoWithNamedProfile();
@@ -107,7 +107,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetValuesFromNamedRepo() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "classpath");
 
     super.testGetValuesFromNamedRepo();
@@ -117,7 +117,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetValuesFromNamedRepoWithNamedProfile() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "default");
 
     super.testGetValuesFromNamedRepoWithNamedProfile();
@@ -127,7 +127,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetValuesFromNamedRepoWithPath() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "classpath");
 
     super.testGetValuesFromNamedRepoWithPath();
@@ -137,7 +137,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testReturnBasePropertiesWhenExist() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", null);
 
     super.testReturnBasePropertiesWhenExist();
@@ -147,7 +147,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   @Override
   public void testTraversePropertiesToARepoRootOtherThanBasePath() throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/env").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/env").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "classpath-env");
 
     super.testTraversePropertiesToARepoRootOtherThanBasePath();
@@ -158,7 +158,7 @@ public class GetTestValuesFromVaultITCase extends AbstractTestSuiteITCase {
   public void testTraversePropertiesToARepoRootOtherThanBasePathWithNamedProfile()
       throws Exception {
 
-    VaultImportUtil.vaultImport(GetTestValuesFromVaultITCase.class.getResource("/env").toURI(),
+    VaultImportUtil.vaultImport(GetTextValuesFromVaultITCase.class.getResource("/env").toURI(),
         f -> f.equals("default.properties"), "http://localhost:8891/configrd/v1", "classpath-env");
 
     super.testTraversePropertiesToARepoRootOtherThanBasePathWithNamedProfile();

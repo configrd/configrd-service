@@ -1,0 +1,20 @@
+version: "3.5"
+services:
+  configrd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: configrd/configrd-service
+    container_name: configrd-service
+    environment:
+       - CONFIG_URI=file:/srv/configrd/repo-defaults.yaml
+       - PORT=9191
+       - STREAMSOURCE=file
+       - LOG_LEVEL=ERROR
+    restart: always
+    stdin_open: true
+    tty: true
+    ports:
+      - "127.0.0.1:${PORT:-9191}:${PORT:-9191}"
+    volumes:
+      - /srv/configrd:/srv/configrd
