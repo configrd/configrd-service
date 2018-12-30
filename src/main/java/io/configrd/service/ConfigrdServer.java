@@ -1,5 +1,6 @@
 package io.configrd.service;
 
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -14,6 +15,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +49,9 @@ public class ConfigrdServer {
     Options options = new Options();
     Option help = new Option("help", "print this message");
     options.addOption(help);
-    Option uri = Option.builder("u").required().argName("uri").hasArg().type(URI.class)
-        .desc("Absolute path of configrd config uri").longOpt("uri").build();
+    Option uri = Option.builder("u").optionalArg(true).argName("uri").hasArg().type(URI.class)
+        .desc("Absolute path of configrd config uri. Default: /srv/configrd/repo-defaults.yml")
+        .longOpt("uri").build();
     options.addOption(uri);
     Option port = Option.builder("p").optionalArg(true).argName("port").longOpt("port").hasArg()
         .type(String.class).desc("Port number. Default: " + DEFAULT_PORT).build();
@@ -71,39 +75,33 @@ public class ConfigrdServer {
 
       if (line.hasOption("help") || line.getArgList().isEmpty()) {
 
-        formatter.printHelp(
-            "java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]",
+        formatter.printHelp("java -jar configrd-service-2.0.0.jar ConfigrdServer [OPTIONS]",
             options);
         return;
 
       } else {
 
-        if (line.hasOption("u")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_URI,
-              line.getOptionValue("u", DEFAULT_CONFIG_URI));
-        }
 
-        if (line.hasOption("p")) {
-          init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
-        }
+        init.put(SystemProperties.CONFIGRD_CONFIG_URI,
+            line.getOptionValue("u", DEFAULT_CONFIG_URI));
 
-        if (line.hasOption("s")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE,
-              line.getOptionValue("s", DEFAULT_STREAMSOURCE));
-        }
 
-        if (line.hasOption("trustCert")) {
-          init.put(SystemProperties.HTTP_TRUST_CERTS,
-              line.getOptionValue("trustCert", DEFAULT_TRUST_CERTS));
-        }
+        init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
+
+
+        init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE,
+            line.getOptionValue("s", DEFAULT_STREAMSOURCE));
+
+
+        init.put(SystemProperties.HTTP_TRUST_CERTS,
+            line.getOptionValue("trustCert", DEFAULT_TRUST_CERTS));
+
       }
 
     } catch (ParseException exp) {
       logger.error("Parsing failed.  Reason: " + exp.getMessage());
 
-      formatter.printHelp(
-          "java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]",
-          options);
+      formatter.printHelp("java -jar configrd-service-2.0.0.jar ConfigrdServer [OPTIONS]", options);
       return;
     }
 
@@ -206,15 +204,21 @@ public class ConfigrdServer {
     if (Files.notExists(Paths.get(uri), new LinkOption[] {}) && (!StringUtils.hasText(path)
         || path.toLowerCase().equals(DEFAULT_CONFIG_URI.toLowerCase()))) {
 
-      logger.warn("No configrd config file specified. Creating default file in default location: "
-          + DEFAULT_CONFIG_URI
-          + ". If you are running from within a docker container please ensure the path /srv/configrd is mapped to a volume.");
-
       try (java.io.InputStream s =
           getClass().getClassLoader().getResourceAsStream("repo-defaults.yml")) {
 
         if (s != null) {
-          assert Files.copy(s, Paths.get(uri)) > 0;
+
+          logger.warn("No alternative configrd config file specified. Creating default file "
+              + DEFAULT_CONFIG_URI
+              + ". If you are running from within a docker container please ensure the path /srv/configrd is mapped to a volume.");
+
+          Files.createDirectories(Paths.get("/srv/configrd"));
+          FileUtils.writeStringToFile(Paths.get(uri).toFile(), IOUtils.toString(s, "UTF-8"),
+              "UTF-8");
+
+        } else {
+          throw new FileNotFoundException("Unable to copy default file. File not found.");
         }
 
       } catch (Exception e) {

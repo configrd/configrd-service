@@ -7,10 +7,10 @@ services:
     image: configrd/configrd-service
     container_name: configrd-service
     environment:
-       - CONFIG_URI=file:/srv/configrd/repo-defaults.yaml
+       - CONFIG_URI=file:/srv/configrd/repo-defaults.yml
        - PORT=9191
        - STREAMSOURCE=file
-       - LOG_LEVEL=ERROR
+       - LOG_LEVEL=INFO
     restart: always
     stdin_open: true
     tty: true
