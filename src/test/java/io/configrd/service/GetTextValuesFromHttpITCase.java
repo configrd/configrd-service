@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.configrd.core.SystemProperties;
 
-public class GetTestValuesFromHttpITCase extends AbstractTestSuiteITCase {
+public class GetTextValuesFromHttpITCase extends AbstractTestSuiteITCase {
 
-  private static final Logger logger = LoggerFactory.getLogger(GetTestValuesFromHttpITCase.class);
+  private static final Logger logger = LoggerFactory.getLogger(GetTextValuesFromHttpITCase.class);
 
 
 
@@ -27,7 +27,7 @@ public class GetTestValuesFromHttpITCase extends AbstractTestSuiteITCase {
         "http://config.appcrossings.net/http-repos.yaml");
 
     TestConfigServer.serverStart(init);
-    logger.info("Running " + GetTestValuesFromHttpITCase.class.getName());
+    logger.info("Running " + GetTextValuesFromHttpITCase.class.getName());
 
   }
 

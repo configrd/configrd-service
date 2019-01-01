@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<variable name="configrd.log.level" value="${configrd.log.level:-ERROR}" />
+	<variable name="configrd.log.level" value="${configrd.log.level:-INFO}" />
 	<appender name="STDOUT"
 		class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>

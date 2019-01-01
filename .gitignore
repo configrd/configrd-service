@@ -6,3 +6,7 @@
 /test-output/
 /.springBeans
 /run-tests.sh
+/boot-start.sh
+/docker-start.sh
+/run-jar.sh
+/dependency-reduced-pom.xml

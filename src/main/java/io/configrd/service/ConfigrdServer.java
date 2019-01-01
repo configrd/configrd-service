@@ -1,6 +1,10 @@
 package io.configrd.service;
 
+import java.io.FileNotFoundException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.ServletException;
@@ -11,10 +15,13 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
+import io.configrd.core.util.StringUtils;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.handlers.PathHandler;
@@ -33,6 +40,7 @@ public class ConfigrdServer {
   public static final String DEFAULT_PORT = "9191";
   public static final String DEFAULT_STREAMSOURCE = "file";
   public static final String DEFAULT_TRUST_CERTS = "false";
+  public static final String DEFAULT_CONFIG_URI = "file:/srv/configrd/repo-defaults.yml";
 
   public static void main(String[] args) throws Throwable {
 
@@ -41,18 +49,21 @@ public class ConfigrdServer {
     Options options = new Options();
     Option help = new Option("help", "print this message");
     options.addOption(help);
-    Option uri = Option.builder("u").required().argName("uri").hasArg().type(URI.class)
-        .desc("Absolute path of configrd config uri").longOpt("uri").build();
+    Option uri = Option.builder("u").optionalArg(true).argName("uri").hasArg().type(URI.class)
+        .desc("Absolute path of configrd config uri. Default: /srv/configrd/repo-defaults.yml")
+        .longOpt("uri").build();
     options.addOption(uri);
     Option port = Option.builder("p").optionalArg(true).argName("port").longOpt("port").hasArg()
         .type(String.class).desc("Port number. Default: " + DEFAULT_PORT).build();
     options.addOption(port);
     Option stream = Option.builder("s").optionalArg(true).argName("name").longOpt("stream").hasArg()
-        .type(String.class).desc("Name of stream source (i.e. file, http, s3). Default: " + DEFAULT_STREAMSOURCE)
+        .type(String.class)
+        .desc("Name of stream source (i.e. file, http, s3). Default: " + DEFAULT_STREAMSOURCE)
         .build();
     options.addOption(stream);
-  
-    Option trustCert = new Option("trustCert", "Trust all HTTP certificates. Default: " + DEFAULT_TRUST_CERTS);
+
+    Option trustCert =
+        new Option("trustCert", "Trust all HTTP certificates. Default: " + DEFAULT_TRUST_CERTS);
     options.addOption(trustCert);
 
     final CommandLineParser parser = new DefaultParser();
@@ -64,54 +75,55 @@ public class ConfigrdServer {
 
       if (line.hasOption("help") || line.getArgList().isEmpty()) {
 
-        formatter.printHelp("java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]", options);
+        formatter.printHelp("java -jar configrd-service-2.0.0.jar ConfigrdServer [OPTIONS]",
+            options);
         return;
 
       } else {
 
-        if (line.hasOption("u")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_URI, line.getOptionValue("u"));
-        }
 
-        if (line.hasOption("p")) {
-          init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
-        }
+        init.put(SystemProperties.CONFIGRD_CONFIG_URI,
+            line.getOptionValue("u", DEFAULT_CONFIG_URI));
 
-        if (line.hasOption("s")) {
-          init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE, line.getOptionValue("s", DEFAULT_STREAMSOURCE));
-        }
 
-        if (line.hasOption("trustCert")) {
-          init.put(SystemProperties.HTTP_TRUST_CERTS, line.getOptionValue("trustCert", DEFAULT_TRUST_CERTS));
-        }
+        init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
+
+
+        init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE,
+            line.getOptionValue("s", DEFAULT_STREAMSOURCE));
+
+
+        init.put(SystemProperties.HTTP_TRUST_CERTS,
+            line.getOptionValue("trustCert", DEFAULT_TRUST_CERTS));
+
       }
-      
+
     } catch (ParseException exp) {
       logger.error("Parsing failed.  Reason: " + exp.getMessage());
 
-      formatter.printHelp("java -jar configrd-service-2.0.0-jar-with-dependencies.jar ConfigrdServer [OPTIONS]", options);
+      formatter.printHelp("java -jar configrd-service-2.0.0.jar ConfigrdServer [OPTIONS]", options);
       return;
     }
 
     if (server != null) {
-      
+
       logger.warn("Calling start on a running server. Please stop first.");
       return;
-      
+
     } else {
 
       server = new ConfigrdServer();
       server.start(init);
-      
+
     }
-
-
   }
 
   protected void start(Map<String, Object> initParama) throws Throwable {
-    
+
     logger.debug("Initializing using params:" + initParama);
-    
+
+    init_repos(initParama);
+
     InitializationContext.get().params().putAll(initParama);
 
     long start = System.currentTimeMillis();
@@ -181,8 +193,39 @@ public class ConfigrdServer {
       logger.info("Server already stopped");
     }
 
-
   }
 
+  protected void init_repos(Map<String, Object> initParama) throws Exception {
+
+    String path = (String) initParama.get(SystemProperties.CONFIGRD_CONFIG_URI);
+
+    URI uri = URI.create(DEFAULT_CONFIG_URI);
+
+    if (Files.notExists(Paths.get(uri), new LinkOption[] {}) && (!StringUtils.hasText(path)
+        || path.toLowerCase().equals(DEFAULT_CONFIG_URI.toLowerCase()))) {
+
+      try (java.io.InputStream s =
+          getClass().getClassLoader().getResourceAsStream("repo-defaults.yml")) {
+
+        if (s != null) {
+
+          logger.warn("No alternative configrd config file specified. Creating default file "
+              + DEFAULT_CONFIG_URI
+              + ". If you are running from within a docker container please ensure the path /srv/configrd is mapped to a volume.");
+
+          Files.createDirectories(Paths.get("/srv/configrd"));
+          FileUtils.writeStringToFile(Paths.get(uri).toFile(), IOUtils.toString(s, "UTF-8"),
+              "UTF-8");
+
+        } else {
+          throw new FileNotFoundException("Unable to copy default file. File not found.");
+        }
+
+      } catch (Exception e) {
+        logger.error("Unable to create default configrd config file at " + DEFAULT_CONFIG_URI, e);
+        throw e;
+      }
+    }
+  }
 
 }
