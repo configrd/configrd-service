@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestGitAuthentication {
@@ -95,6 +96,26 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.USERNAME_FIELD, githubPrivKey);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "git@github.com:kkarski/configrd-demo.git");
+    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
+
+    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+
+    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo")));
+    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo/env")));
+
+    FileUtils.forceDelete(new File(localClone + "/configrd-demo"));
+  }
+
+  @Ignore //2fa enabled
+  @Test
+  public void testLoginWithGitHubCredentials() throws Exception {
+
+    Map<String, Object> vals = new HashMap<>();
+
+    vals.put(GitRepoDef.USERNAME_FIELD, githubUser);
+    vals.put(GitRepoDef.PASSWORD_FIELD, githubSecret);
+    vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.GitHub.name());
+    vals.put(GitRepoDef.URI_FIELD, "https://github.com/kkarski/configrd-demo.git");
     vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
