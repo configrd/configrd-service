@@ -18,6 +18,8 @@ public class TestGitAuthentication {
   private String awsCodeCommitGitSecret = System.getProperty("aws.codecommit.git.secret");
   private String awsCodeCommitIamUser = System.getProperty("aws.codecommit.iam.user");
   private String awsCodeCommitIamSecret = System.getProperty("aws.codecommit.iam.secret");
+  private String awsCodeCommitSshId = System.getProperty("aws.codecommit.ssh.id");
+  private String awsCodeCommitSshPrivKey = System.getProperty("aws.codecommit.ssh.privatekey");
 
   private String githubUser = System.getProperty("github.user");
   private String githubSecret = System.getProperty("github.secret");
@@ -65,16 +67,16 @@ public class TestGitAuthentication {
 
     FileUtils.forceDelete(new File(localClone + "/configrd-test"));
   }
-  
+
   @Test
   public void testLoginWithAWSSshPrivKeyCredentials() throws Exception {
 
     Map<String, Object> vals = new HashMap<>();
 
-    vals.put(GitRepoDef.USERNAME_FIELD, githubPrivKey);
+    vals.put(GitRepoDef.USERNAME_FIELD, awsCodeCommitSshPrivKey);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
-    vals.put(GitRepoDef.URI_FIELD,
-        "ssh://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
+    vals.put(GitRepoDef.URI_FIELD, "ssh://" + awsCodeCommitSshId
+        + "@git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
     vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
