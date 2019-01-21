@@ -1,7 +1,9 @@
 package io.configrd.core.git;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
 import org.eclipse.jgit.api.CloneCommand;
@@ -14,6 +16,7 @@ import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
@@ -22,8 +25,10 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import io.configrd.core.exception.InitializationException;
+import io.configrd.core.processor.ProcessorSelector;
 import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.RepoDef;
+import io.configrd.core.source.StreamPacket;
 import io.configrd.core.source.StreamSource;
 import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
@@ -42,19 +47,48 @@ public class GitStreamSource implements StreamSource {
   public GitStreamSource(GitRepoDef repoDef, GitCredentials creds) {
 
     this.repoDef = repoDef;
+    this.builder = URIBuilder.create(repoDef.toURI());
     this.creds = creds;
 
   }
 
   @Override
   public void close() throws IOException {
-    git.close();
+    if (git != null)
+      git.close();
   }
 
   @Override
-  public Optional<PropertyPacket> stream(String path) {
-    // TODO Auto-generated method stub
-    return null;
+  public Optional<PropertyPacket> stream(final String path) {
+
+    StreamPacket packet = null;
+
+    long start = System.currentTimeMillis();
+
+    URI request = prototypeURI(path);
+
+    logger.debug("Requesting git path: " + request.toString());
+
+    try (InputStream is = new FileInputStream(new File(request))) {
+
+      if (is != null) {
+
+        packet = new StreamPacket(request, is);
+        packet.putAll(ProcessorSelector.process(request.toString(), packet.bytes()));
+
+      }
+
+    } catch (IOException io) {
+
+      logger.debug(io.getMessage());
+      // Nothing, simply file not there
+
+    }
+
+    logger.trace("Git connector took: " + (System.currentTimeMillis() - start) + "ms to fetch "
+        + request.toString());
+
+    return Optional.ofNullable(packet);
   }
 
   @Override
@@ -76,23 +110,28 @@ public class GitStreamSource implements StreamSource {
   public void init() {
     try {
 
-      String repoName = repoDef.getRepoName();
-
-      URI uri = repoDef.toURI();
-
       CloneCommand clone = Git.cloneRepository().setURI(repoDef.getUri()).setRemote("origin")
-          .setDirectory(new File(repoDef.getLocalClone() + "/" + repoName));
+          .setDirectory(new File(repoDef.toURI()));
+
+      URIish uri = null;
+
+      try {
+        uri = new URIish(repoDef.getUri());
+      } catch (Exception e) {
+        throw new IllegalArgumentException(e);
+      }
 
       if (StringUtils.hasText(repoDef.getBranchName())) {
         clone = clone.setBranch(repoDef.getBranchName());
       }
 
-      if (uri.getScheme().toLowerCase().equals("ssh")) {
+      if (uri.getScheme() == null || (!uri.getScheme().toLowerCase().startsWith("http")
+          && !uri.getScheme().toLowerCase().startsWith("git:"))) {
 
         SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
           @Override
           protected void configure(Host host, Session session) {
-  
+
           }
 
           @Override
@@ -111,7 +150,7 @@ public class GitStreamSource implements StreamSource {
             sshTransport.setSshSessionFactory(sshSessionFactory);
           }
         });
-        
+
       } else {
 
         if (repoDef.getAuthMethod() != null) {
@@ -119,7 +158,7 @@ public class GitStreamSource implements StreamSource {
               new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword()));
         }
       }
-      
+
       git = clone.call();
 
     } catch (InvalidRemoteException e2) {

@@ -11,6 +11,7 @@ import io.configrd.core.source.DefaultRepoDef;
 import io.configrd.core.source.FileBasedRepo;
 import io.configrd.core.source.SecuredRepo;
 import io.configrd.core.util.StringUtils;
+import io.configrd.core.util.URIBuilder;
 
 @SuppressWarnings("serial")
 public class GitRepoDef extends DefaultRepoDef
@@ -101,17 +102,9 @@ public class GitRepoDef extends DefaultRepoDef
   @Override
   public URI toURI() {
 
-    try {
-      URIish urish = new URIish(uri);
-    } catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-
-    if (uri.toLowerCase().startsWith("http") || uri.toLowerCase().startsWith("git:")) {
-      return URI.create(uri);
-    } else {
-      return URI.create("ssh:/" + uri);
-    }
+    URIBuilder builder = URIBuilder.create(localClone + "/" + getRepoName()).setScheme("file")
+        .setFileNameIfMissing(getFileName());
+    return builder.build();
 
   }
 
@@ -120,9 +113,8 @@ public class GitRepoDef extends DefaultRepoDef
 
     List<String> err = new ArrayList<>();
 
-    URIish urish = null;
     try {
-      urish = new URIish(uri);
+      URIish urish = new URIish(uri);
     } catch (Exception e) {
       err.add("Uri must be a valid git URI");
     }
