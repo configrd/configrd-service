@@ -19,7 +19,20 @@ jobs:
                   ./vault write auth/userpass/users/test password=password policies=admins
                   ./vault policy write admins src/test/resources/vault/admin.hcl
     - run: sudo chown circleci:circleci /srv -R
-    - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
+    - run: |
+             mvn clean install -B -s .circleci/settings.xml \
+             -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} \
+             -Daws.secretKey=${AWS_SECRET_KEY} \
+             -Daws.codecommit.git.user=${AWS_CODECOMMIT_GIT_USER} \
+             -Daws.codecommit.git.secret=${AWS_CODECOMMIT_GIT_SECRET} \
+             -Daws.codecommit.iam.user=${AWS_CODECOMMIT_IAM_USER} \
+             -Daws.codecommit.iam.secret=${AWS_CODECOMMIT_IAM_SECRET} \
+             -Daws.codecommit.ssh.id=${AWS_CODECOMMIT_SSH_ID} \
+             -Daws.codecommit.ssh.privatekey=${AWS_CODECOMMIT_SSH_PRIVATEKEY} \
+             -Dgithub.user=${GITHUB_USER} \
+             -Dgithub.secret=${GITHUB_SECRET} \
+             -Dgithub.ssh.privatekey=${GITHUB_SSH_PRIVATEKEY} \
+             -Dgithub.token=${GITHUB_TOKEN}
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
