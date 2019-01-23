@@ -92,7 +92,7 @@ public class GitStreamSource implements StreamSource {
     }
 
     logger.debug("Requesting git path: " + request.toString());
-    
+
     try (InputStream is = new FileInputStream(new File(request))) {
 
       if (is != null) {
@@ -153,7 +153,7 @@ public class GitStreamSource implements StreamSource {
           || rr.getMergeStatus().equals(MergeResult.MergeStatus.ALREADY_UP_TO_DATE)) {
         result = Boolean.TRUE;
         logger.debug("Pull of " + repoDef.getUri() + " completed");
-      }     
+      }
 
     } catch (Exception e) {
       logger.error(e.getMessage());
@@ -196,7 +196,7 @@ public class GitStreamSource implements StreamSource {
       SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
         @Override
         protected void configure(Host host, Session session) {
-
+          session.setConfig("StrictHostKeyChecking", "no");
         }
 
         @Override
