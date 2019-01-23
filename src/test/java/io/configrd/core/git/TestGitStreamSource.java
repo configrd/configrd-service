@@ -19,21 +19,38 @@ public class TestGitStreamSource {
 
   private String githubPrivKey = System.getProperty("github.ssh.privatekey");
 
+  private Map<String, Object> vals = new HashMap<>();
+
   @Before
   public void init() {
-
-    Map<String, Object> vals = new HashMap<>();
 
     vals.put(GitRepoDef.USERNAME_FIELD, githubPrivKey);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "git@github.com:kkarski/configrd-demo.git");
     vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
   }
 
   @Test
   public void testGetValues() throws Exception {
+
+    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+
+    final String key = "env/dev/custom/default.properties";
+
+    Optional<PropertyPacket> packet = stream.stream(key);
+    Assert.assertTrue(packet.isPresent());
+
+  }
+  
+  @Test
+  public void testGetValuesWithTimedPull() throws Exception {
+
+    vals.put(GitRepoDef.REFRESH_FIELD, 5);
+    
+    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    
+    Thread.sleep(12000);
 
     final String key = "env/dev/custom/default.properties";
 

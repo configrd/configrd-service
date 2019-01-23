@@ -6,8 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.GitCommand;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -16,7 +23,6 @@ import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
-import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
@@ -42,6 +48,16 @@ public class GitStreamSource implements StreamSource {
   public static final String GIT = "git";
   public final GitCredentials creds;
 
+  private static final Timer timer = new Timer(true);
+
+  private final TimerTask pullTask = new TimerTask() {
+
+    @Override
+    public void run() {
+      gitPull();
+    }
+  };
+
   private Git git;
 
   public GitStreamSource(GitRepoDef repoDef, GitCredentials creds) {
@@ -56,6 +72,8 @@ public class GitStreamSource implements StreamSource {
   public void close() throws IOException {
     if (git != null)
       git.close();
+
+    pullTask.cancel();
   }
 
   @Override
@@ -67,8 +85,14 @@ public class GitStreamSource implements StreamSource {
 
     URI request = prototypeURI(path);
 
-    logger.debug("Requesting git path: " + request.toString());
+    if (repoDef.getRefresh() < 1) {
+      if (!gitPull()) {
+        logger.error("Pull operation failed. Possibly reading stale values");
+      }
+    }
 
+    logger.debug("Requesting git path: " + request.toString());
+    
     try (InputStream is = new FileInputStream(new File(request))) {
 
       if (is != null) {
@@ -82,7 +106,6 @@ public class GitStreamSource implements StreamSource {
 
       logger.debug(io.getMessage());
       // Nothing, simply file not there
-
     }
 
     logger.trace("Git connector took: " + (System.currentTimeMillis() - start) + "ms to fetch "
@@ -108,66 +131,99 @@ public class GitStreamSource implements StreamSource {
 
   @Override
   public void init() {
+    gitClone();
+
+    if (repoDef.getRefresh() > 0) {
+      logger.info("Setting timed pulling at " + repoDef.getRefresh() + " seconds");
+      timer.scheduleAtFixedRate(pullTask, repoDef.getRefresh() * 1000, repoDef.getRefresh() * 1000);
+    }
+  }
+
+  private boolean gitPull() {
+
+    Boolean result = Boolean.FALSE;
     try {
 
-      CloneCommand clone = Git.cloneRepository().setURI(repoDef.getUri()).setRemote("origin")
-          .setDirectory(new File(repoDef.toURI()));
+      PullCommand pc = git.pull();
+      PullResult pullRes = pc.call();
+      MergeResult rr = pullRes.getMergeResult();
 
-      URIish uri = null;
+      if (rr.getMergeStatus().equals(MergeResult.MergeStatus.MERGED)
+          || rr.getMergeStatus().equals(MergeResult.MergeStatus.FAST_FORWARD)
+          || rr.getMergeStatus().equals(MergeResult.MergeStatus.ALREADY_UP_TO_DATE)) {
+        result = Boolean.TRUE;
+        logger.debug("Pull of " + repoDef.getUri() + " completed");
+      }     
 
-      try {
-        uri = new URIish(repoDef.getUri());
-      } catch (Exception e) {
-        throw new IllegalArgumentException(e);
-      }
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+    return result;
+  }
+
+  private boolean gitClone() {
+
+    try {
+      CloneCommand clone =
+          Git.cloneRepository().setURI(repoDef.getUri()).setDirectory(new File(repoDef.toURI()));
 
       if (StringUtils.hasText(repoDef.getBranchName())) {
         clone = clone.setBranch(repoDef.getBranchName());
       }
 
-      if (uri.getScheme() == null || (!uri.getScheme().toLowerCase().startsWith("http")
-          && !uri.getScheme().toLowerCase().startsWith("git:"))) {
-
-        SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-          @Override
-          protected void configure(Host host, Session session) {
-
-          }
-
-          @Override
-          protected JSch createDefaultJSch(FS fs) throws JSchException {
-            JSch defaultJSch = super.createDefaultJSch(fs);
-            defaultJSch.addIdentity(repoDef.getUsername(), repoDef.getPassword());
-            return defaultJSch;
-          }
-        };
-
-        clone.setTransportConfigCallback(new TransportConfigCallback() {
-          @Override
-          public void configure(Transport transport) {
-
-            SshTransport sshTransport = (SshTransport) transport;
-            sshTransport.setSshSessionFactory(sshSessionFactory);
-          }
-        });
-
-      } else {
-
-        if (repoDef.getAuthMethod() != null) {
-          clone = clone.setCredentialsProvider(
-              new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword()));
-        }
-      }
+      setupCredentials(repoDef.toURIish().getScheme(), clone);
 
       git = clone.call();
 
-    } catch (InvalidRemoteException e2) {
+    } catch (
+
+    InvalidRemoteException e2) {
       throw new IllegalArgumentException(e2);
     } catch (GitAPIException e3) {
       throw new InitializationException(e3.getMessage());
+
+
     }
+    return true;
+
   }
 
+  private void setupCredentials(String scheme, TransportCommand<? extends GitCommand, ?> command) {
+
+    if (scheme == null
+        || (!scheme.toLowerCase().startsWith("http") && !scheme.toLowerCase().startsWith("git:"))) {
+
+      SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
+        @Override
+        protected void configure(Host host, Session session) {
+
+        }
+
+        @Override
+        protected JSch createDefaultJSch(FS fs) throws JSchException {
+          JSch defaultJSch = super.createDefaultJSch(fs);
+          defaultJSch.addIdentity(repoDef.getUsername(), repoDef.getPassword());
+          return defaultJSch;
+        }
+      };
+
+      command.setTransportConfigCallback(new TransportConfigCallback() {
+        @Override
+        public void configure(Transport transport) {
+
+          SshTransport sshTransport = (SshTransport) transport;
+          sshTransport.setSshSessionFactory(sshSessionFactory);
+        }
+      });
+
+    } else {
+
+      if (repoDef.getAuthMethod() != null) {
+        command.setCredentialsProvider(
+            new UsernamePasswordCredentialsProvider(creds.getUsername(), creds.getPassword()));
+      }
+    }
+  }
 
 
 }
