@@ -6,6 +6,9 @@ jobs:
     environment:
       CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
     steps:
+    - add_ssh_keys:
+          fingerprints:
+            - "72:21:1b:8c:0e:23:94:63:64:dd:39:4d:b2:7f:b6:07"
     - checkout
     - run:
         name: Download vault
