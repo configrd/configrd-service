@@ -10,17 +10,6 @@ jobs:
           fingerprints:
             - "72:21:1b:8c:0e:23:94:63:64:dd:39:4d:b2:7f:b6:07"
     - checkout
-    - run:
-        name: Download vault
-        command: |
-                  curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip --output ./vault.zip
-                  unzip vault.zip
-                  ./vault server -dev &
-                  export VAULT_ADDR=http://127.0.0.1:8200
-                  sleep 2
-                  ./vault auth enable userpass
-                  ./vault write auth/userpass/users/test password=password policies=admins
-                  ./vault policy write admins src/test/resources/vault/admin.hcl
     - run: sudo chown circleci:circleci /srv -R
     - run: |
              mvn clean install -B -s .circleci/settings.xml \
@@ -40,7 +29,6 @@ jobs:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
         - target
-        - ./vault
         - ~/.m2
     - store_test_results:
         paths:

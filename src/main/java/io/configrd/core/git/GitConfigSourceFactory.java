@@ -8,19 +8,17 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import io.configrd.core.git.GitRepoDef.AuthMethod;
 import io.configrd.core.source.ConfigSource;
 import io.configrd.core.source.ConfigSourceFactory;
-import io.configrd.core.source.StreamSource;
 
 public class GitConfigSourceFactory implements ConfigSourceFactory {
 
-  private final static String defaultLocalClone = "/tmp/configrd/";
-
   @Override
   public ConfigSource newConfigSource(String name, Map<String, Object> values) {
-    // TODO Auto-generated method stub
-    return null;
+    GitStreamSource source = newStreamSource(name, values);
+    GitConfigSource configSource = new GitConfigSource(source, values);
+    return configSource;
   }
 
-  public StreamSource newStreamSource(String name, Map<String, Object> values) {
+  public GitStreamSource newStreamSource(String name, Map<String, Object> values) {
 
     GitRepoDef def = new GitRepoDef(name, values);
 
@@ -57,7 +55,7 @@ public class GitConfigSourceFactory implements ConfigSourceFactory {
     } else if (AuthMethod.SshPubKey.name().equalsIgnoreCase(def.getAuthMethod())) {
 
       creds = def;
-      
+
     }
 
     GitStreamSource source = new GitStreamSource(def, creds);
@@ -68,7 +66,7 @@ public class GitConfigSourceFactory implements ConfigSourceFactory {
 
   @Override
   public boolean isCompatible(String path) {
-    // TODO Auto-generated method stub
+    // Don't support dynamic discovery
     return false;
   }
 

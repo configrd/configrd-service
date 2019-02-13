@@ -28,17 +28,18 @@ public class TestGitStreamSource {
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "git@github.com:kkarski/configrd-demo.git");
     vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
+    vals.put(GitRepoDef.SOURCE_NAME_FIELD, GitStreamSource.GIT);
 
   }
 
   @Test
   public void testGetValues() throws Exception {
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
 
     final String key = "env/dev/custom/default.properties";
 
-    Optional<PropertyPacket> packet = stream.stream(key);
+    Optional<? extends PropertyPacket> packet = stream.stream(key);
     Assert.assertTrue(packet.isPresent());
 
   }
@@ -48,20 +49,20 @@ public class TestGitStreamSource {
 
     vals.put(GitRepoDef.REFRESH_FIELD, 5);
     
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
     
     Thread.sleep(12000);
 
     final String key = "env/dev/custom/default.properties";
 
-    Optional<PropertyPacket> packet = stream.stream(key);
+    Optional<? extends PropertyPacket> packet = stream.stream(key);
     Assert.assertTrue(packet.isPresent());
 
   }
 
   @After
   public void teardown() throws Exception {
-    FileUtils.forceDelete(new File(localClone + "/configrd-demo"));
+    FileUtils.forceDelete(new File(localClone + "/TestGitStreamSource"));
   }
 
 }

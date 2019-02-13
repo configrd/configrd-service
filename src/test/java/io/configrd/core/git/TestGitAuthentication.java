@@ -6,9 +6,12 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import io.configrd.core.aws.s3.S3StreamSource;
 
 public class TestGitAuthentication {
 
@@ -28,120 +31,97 @@ public class TestGitAuthentication {
   private String githubToken = System.getProperty("github.token");
 
   private final static String localClone = "/tmp/configrd/test";
+  private Map<String, Object> vals;
+  
+  
+  @Before
+  public void setup() {
+    vals = new HashMap<>();
+    vals.put(GitRepoDef.SOURCE_NAME_FIELD, GitStreamSource.GIT);
+    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
+  }
 
   @Test
   public void testLoginWithAWSGitCredentials() throws Exception {
-
-    Map<String, Object> vals = new HashMap<>();
 
     vals.put(GitRepoDef.USERNAME_FIELD, awsCodeCommitGitUser);
     vals.put(GitRepoDef.PASSWORD_FIELD, awsCodeCommitGitSecret);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.CodeCommitGitCreds.name());
     vals.put(GitRepoDef.URI_FIELD,
-        "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
+        "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");    
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test/env")));
-
-    FileUtils.forceDelete(new File(localClone + "/configrd-test"));
   }
 
   @Test
   public void testLoginWithAWSIAMCredentials() throws Exception {
-
-    Map<String, Object> vals = new HashMap<>();
 
     vals.put(GitRepoDef.USERNAME_FIELD, awsCodeCommitIamUser);
     vals.put(GitRepoDef.PASSWORD_FIELD, awsCodeCommitIamSecret);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.CodeCommitIAMUser.name());
     vals.put(GitRepoDef.URI_FIELD,
         "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test/env")));
-
-    FileUtils.forceDelete(new File(localClone + "/configrd-test"));
   }
 
   @Test
   public void testLoginWithAWSSshPrivKeyCredentials() throws Exception {
 
-    Map<String, Object> vals = new HashMap<>();
-
     vals.put(GitRepoDef.USERNAME_FIELD, awsCodeCommitSshPrivKey);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "ssh://" + awsCodeCommitSshId
         + "@git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-test/env")));
-
-    FileUtils.forceDelete(new File(localClone + "/configrd-test"));
   }
 
   @Test
   public void testLoginWithGitSshPrivKeyHubCredentials() throws Exception {
 
-    Map<String, Object> vals = new HashMap<>();
-
     vals.put(GitRepoDef.USERNAME_FIELD, githubPrivKey);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "git@github.com:kkarski/configrd-demo.git");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo/env")));
-
-    FileUtils.forceDelete(new File(localClone + "/configrd-demo"));
   }
 
-  @Ignore //2fa enabled
+  @Ignore // 2fa enabled
   @Test
   public void testLoginWithGitHubCredentials() throws Exception {
-
-    Map<String, Object> vals = new HashMap<>();
 
     vals.put(GitRepoDef.USERNAME_FIELD, githubUser);
     vals.put(GitRepoDef.PASSWORD_FIELD, githubSecret);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.GitHub.name());
     vals.put(GitRepoDef.URI_FIELD, "https://github.com/kkarski/configrd-demo.git");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo/env")));
-
-    FileUtils.forceDelete(new File(localClone + "/configrd-demo"));
   }
 
   @Test
   public void testLoginWithGitHubTokenCredentials() throws Exception {
 
-    Map<String, Object> vals = new HashMap<>();
-
     vals.put(GitRepoDef.USERNAME_FIELD, githubToken);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.GitHubToken.name());
     vals.put(GitRepoDef.URI_FIELD, "https://github.com/kkarski/configrd-demo.git");
-    vals.put(GitRepoDef.LOCAL_CLONE_FIELD, localClone);
 
     stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
 
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo")));
-    Assert.assertTrue(Files.exists(Paths.get(localClone, "configrd-demo/env")));
+  }
 
-    FileUtils.forceDelete(new File(localClone + "/configrd-demo"));
+  public void verify() throws Exception {
+    Assert.assertTrue(Files.exists(Paths.get(localClone, "TestCodeCommitAuthentication")));
+    Assert.assertTrue(Files.exists(Paths.get(localClone, "TestCodeCommitAuthentication/env")));
+  }
+
+  @After
+  public void cleanup() throws Exception {
+    FileUtils.forceDelete(new File(localClone + "/TestCodeCommitAuthentication"));
   }
 
 }

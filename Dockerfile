@@ -6,6 +6,11 @@ ENV PORT 9191
 ENV STREAMSOURCE file
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_ACCESS_KEY ""
+ENV GIT_USER ""
+ENV GIT_SECRET ""
+ENV GIT_TOKEN ""
+ENV SSH_PK ""
+ENV AUTH_METHOD ""
 ENV LOG_LEVEL INFO
 
 COPY ./target/configrd-service-2.0.0.jar /apps/
@@ -20,4 +25,9 @@ ENTRYPOINT java -Djava.security.egd=file:/dev/./urandom \
 				-jar ./configrd-service-2.0.0.jar ConfigrdServer \
 				-u $CONFIG_URI \
 				-p $PORT \
-				-s $STREAMSOURCE
+				-s $STREAMSOURCE \
+				-gitu $GIT_USER \
+				-gits $GIT_SECRET \
+				-gitt $GIT_TOKEN \
+				-pk $SSH_PK \
+				-auth $AUTH_METHOD \

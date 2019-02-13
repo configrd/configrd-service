@@ -1,7 +1,6 @@
 package io.configrd.core.git;
 
 import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,25 +10,22 @@ import io.configrd.core.source.DefaultRepoDef;
 import io.configrd.core.source.FileBasedRepo;
 import io.configrd.core.source.SecuredRepo;
 import io.configrd.core.util.StringUtils;
-import io.configrd.core.util.URIBuilder;
 
 @SuppressWarnings("serial")
 public class GitRepoDef extends DefaultRepoDef
     implements SecuredRepo, FileBasedRepo, GitCredentials {
 
   public enum AuthMethod {
-
     CodeCommitGitCreds, CodeCommitIAMUser, GitHub, GitHubToken, SshPubKey;
-
   }
 
-  public static final String AUTH_METHOD_FIELD = "authMethod";
-
   public static final String LOCAL_CLONE_FIELD = "localClone";
-  
-  public static final String REFRESH_FIELD = "refresh";
 
-  private String authMethod = AuthMethod.CodeCommitGitCreds.name();
+  public static final String REFRESH_FIELD = "refresh";
+  
+  public static final String ROOT_DIR_FIELD = "rootDir";
+
+  private String authMethod;
 
   private String fileName;
 
@@ -40,6 +36,8 @@ public class GitRepoDef extends DefaultRepoDef
   private String localClone;
 
   private String branchName;
+  
+  private String rootDir;
 
   private Integer refresh = Integer.valueOf(0);
 
@@ -70,6 +68,10 @@ public class GitRepoDef extends DefaultRepoDef
 
   public String getBranchName() {
     return branchName;
+  }
+
+  public String getConfigrdFileName() {
+    return configrdFileName;
   }
 
   public String getFileName() {
@@ -117,6 +119,10 @@ public class GitRepoDef extends DefaultRepoDef
 
   }
 
+  public String getRootDir() {
+    return rootDir;
+  }
+
   public String getUsername() {
     return username;
   }
@@ -127,6 +133,10 @@ public class GitRepoDef extends DefaultRepoDef
 
   public void setBranchName(String branchName) {
     this.branchName = branchName;
+  }
+
+  public void setConfigrdFileName(String configrdFileName) {
+    this.configrdFileName = configrdFileName;
   }
 
   public void setFileName(String fileName) {
@@ -149,23 +159,34 @@ public class GitRepoDef extends DefaultRepoDef
     this.refresh = refresh;
   }
 
+  public void setRootDir(String root) {
+    this.rootDir = root;
+  }
+
   public void setUsername(String username) {
     this.username = username;
   }
 
-  @Override
-  public URI toURI() {
+  public URIish toURIish() {
+    URIish uri = null;
 
-    URIBuilder builder = URIBuilder.create(localClone + "/" + getRepoName()).setScheme("file")
-        .setFileNameIfMissing(getFileName());
-    return builder.build();
+    try {
+      uri = new URIish(getUri());
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e);
+    }
 
+    return uri;
   }
 
   @Override
   public String[] valid() {
 
     List<String> err = new ArrayList<>();
+
+    for (String s : super.valid()) {
+      err.add(s);
+    }
 
     URIish urish = toURIish();
 
@@ -190,23 +211,16 @@ public class GitRepoDef extends DefaultRepoDef
       err.add("Username must be configed as path to private key.");
 
     }
-    
-    if(refresh > 0 && refresh < 5) {
+
+    if (!StringUtils.hasText(localClone)) {
+      err.add("Local clone destination path not specificed. Where should I git clone " + getName()
+          + "?");
+    }
+
+    if (refresh > 0 && refresh < 5) {
       err.add("Refresh rate must be at least 5 seconds or more.");
     }
 
     return err.toArray(new String[] {});
-  }
-
-  public URIish toURIish() {
-    URIish uri = null;
-
-    try {
-      uri = new URIish(getUri());
-    } catch (Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-
-    return uri;
   }
 }

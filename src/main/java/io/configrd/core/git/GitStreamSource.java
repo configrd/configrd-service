@@ -18,6 +18,7 @@ import org.eclipse.jgit.api.TransportCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig.Host;
 import org.eclipse.jgit.transport.SshSessionFactory;
@@ -32,6 +33,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import io.configrd.core.exception.InitializationException;
 import io.configrd.core.processor.ProcessorSelector;
+import io.configrd.core.source.FileStreamSource;
 import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.RepoDef;
 import io.configrd.core.source.StreamPacket;
@@ -39,16 +41,16 @@ import io.configrd.core.source.StreamSource;
 import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
 
-public class GitStreamSource implements StreamSource {
+public class GitStreamSource implements StreamSource, FileStreamSource {
 
   private final static Logger logger = LoggerFactory.getLogger(GitStreamSource.class);
 
+  public static final String GIT = "git";
+  private static final Timer timer = new Timer(true);
   private final GitRepoDef repoDef;
   private URIBuilder builder;
-  public static final String GIT = "git";
-  public final GitCredentials creds;
 
-  private static final Timer timer = new Timer(true);
+  public final GitCredentials creds;
 
   private final TimerTask pullTask = new TimerTask() {
 
@@ -63,7 +65,7 @@ public class GitStreamSource implements StreamSource {
   public GitStreamSource(GitRepoDef repoDef, GitCredentials creds) {
 
     this.repoDef = repoDef;
-    this.builder = URIBuilder.create(repoDef.toURI());
+    this.builder = URIBuilder.create(toURI());
     this.creds = creds;
 
   }
@@ -77,41 +79,8 @@ public class GitStreamSource implements StreamSource {
   }
 
   @Override
-  public Optional<PropertyPacket> stream(final String path) {
-
-    StreamPacket packet = null;
-
-    long start = System.currentTimeMillis();
-
-    URI request = prototypeURI(path);
-
-    if (repoDef.getRefresh() < 1) {
-      if (!gitPull()) {
-        logger.error("Pull operation failed. Possibly reading stale values");
-      }
-    }
-
-    logger.debug("Requesting git path: " + request.toString());
-
-    try (InputStream is = new FileInputStream(new File(request))) {
-
-      if (is != null) {
-
-        packet = new StreamPacket(request, is);
-        packet.putAll(ProcessorSelector.process(request.toString(), packet.bytes()));
-
-      }
-
-    } catch (IOException io) {
-
-      logger.debug(io.getMessage());
-      // Nothing, simply file not there
-    }
-
-    logger.trace("Git connector took: " + (System.currentTimeMillis() - start) + "ms to fetch "
-        + request.toString());
-
-    return Optional.ofNullable(packet);
+  public RepoDef getSourceConfig() {
+    return repoDef;
   }
 
   @Override
@@ -119,14 +88,95 @@ public class GitStreamSource implements StreamSource {
     return GIT;
   }
 
-  @Override
-  public RepoDef getSourceConfig() {
-    return repoDef;
+  private boolean gitClone() {
+
+    String cloneFrom = repoDef.getUri();
+    URI cloneTo = URIBuilder.create().setScheme("file")
+        .setPath(repoDef.getLocalClone(), repoDef.getName()).build();
+
+    logger.info("Cloning " + cloneFrom + " into " + cloneTo);
+
+    try {
+
+      CloneCommand clone = Git.cloneRepository().setURI(cloneFrom).setDirectory(new File(cloneTo));
+
+      if (StringUtils.hasText(repoDef.getBranchName())) {
+        clone = clone.setBranch(repoDef.getBranchName());
+      }
+
+      setupCredentials(repoDef.toURIish().getScheme(), clone);
+
+      git = clone.call();
+
+    } catch (JGitInternalException e) {
+
+      if (e.getMessage().toLowerCase().contains("already exists")) {
+        logger.warn("Clone " + cloneTo + " already exists. Refreshing.");
+        return gitPull();
+      }
+
+    } catch (InvalidRemoteException e2) {
+      throw new IllegalArgumentException(e2);
+    } catch (GitAPIException e3) {
+      throw new InitializationException(e3.getMessage());
+
+
+    }
+    return true;
+
   }
 
-  @Override
-  public URI prototypeURI(String path) {
-    return builder.build(path);
+  private URI toURI() {
+
+    URIBuilder builder = URIBuilder.create()
+        .setPath(repoDef.getLocalClone(), repoDef.getName(), repoDef.getRootDir()).setScheme("file")
+        .setFileNameIfMissing(repoDef.getFileName());
+    return builder.build();
+
+  }
+
+  private boolean gitPull() {
+
+    Boolean result = Boolean.FALSE;
+
+    if (git == null) {
+      final URI cloneTo = URIBuilder.create().setScheme("file")
+          .setPath(repoDef.getLocalClone(), repoDef.getName()).build();
+
+      try {
+        git = Git.open(new File(cloneTo));
+
+        if (StringUtils.hasText(repoDef.getBranchName()))
+          git.checkout().setName(repoDef.getBranchName()).call();
+        
+      } catch (Exception e) {
+        logger.error(e.getMessage());
+      }
+    }
+
+
+    MergeResult rr = null;
+    try {
+
+      PullCommand pc = git.pull();
+
+      setupCredentials(repoDef.toURIish().getScheme(), pc);
+
+      PullResult pullRes = pc.call();
+      rr = pullRes.getMergeResult();
+
+    } catch (Exception e) {
+      logger.error(e.getMessage());
+    }
+
+    if (rr.getMergeStatus().equals(MergeResult.MergeStatus.MERGED)
+        || rr.getMergeStatus().equals(MergeResult.MergeStatus.FAST_FORWARD)
+        || rr.getMergeStatus().equals(MergeResult.MergeStatus.ALREADY_UP_TO_DATE)) {
+      result = Boolean.TRUE;
+      logger.debug("Pull of " + repoDef.getUri() + " completed");
+    }
+
+    return result;
   }
 
   @Override
@@ -139,53 +189,9 @@ public class GitStreamSource implements StreamSource {
     }
   }
 
-  private boolean gitPull() {
-
-    Boolean result = Boolean.FALSE;
-    try {
-
-      PullCommand pc = git.pull();
-      PullResult pullRes = pc.call();
-      MergeResult rr = pullRes.getMergeResult();
-
-      if (rr.getMergeStatus().equals(MergeResult.MergeStatus.MERGED)
-          || rr.getMergeStatus().equals(MergeResult.MergeStatus.FAST_FORWARD)
-          || rr.getMergeStatus().equals(MergeResult.MergeStatus.ALREADY_UP_TO_DATE)) {
-        result = Boolean.TRUE;
-        logger.debug("Pull of " + repoDef.getUri() + " completed");
-      }
-
-    } catch (Exception e) {
-      logger.error(e.getMessage());
-    }
-    return result;
-  }
-
-  private boolean gitClone() {
-
-    try {
-      CloneCommand clone =
-          Git.cloneRepository().setURI(repoDef.getUri()).setDirectory(new File(repoDef.toURI()));
-
-      if (StringUtils.hasText(repoDef.getBranchName())) {
-        clone = clone.setBranch(repoDef.getBranchName());
-      }
-
-      setupCredentials(repoDef.toURIish().getScheme(), clone);
-
-      git = clone.call();
-
-    } catch (
-
-    InvalidRemoteException e2) {
-      throw new IllegalArgumentException(e2);
-    } catch (GitAPIException e3) {
-      throw new InitializationException(e3.getMessage());
-
-
-    }
-    return true;
-
+  @Override
+  public URI prototypeURI(String path) {
+    return builder.build(path);
   }
 
   private void setupCredentials(String scheme, TransportCommand<? extends GitCommand, ?> command) {
@@ -225,5 +231,61 @@ public class GitStreamSource implements StreamSource {
     }
   }
 
+  @Override
+  public Optional<? extends PropertyPacket> stream(String path) {
+
+    Optional<StreamPacket> packet = streamFile(path);
+
+    try {
+
+      if (packet.isPresent()) {
+        packet.get().putAll(
+            ProcessorSelector.process(packet.get().getUri().toString(), packet.get().bytes()));
+      }
+
+    } catch (IOException io) {
+
+      logger.error(io.getMessage());
+      // Nothing, simply file not there
+    }
+
+    return packet;
+
+  }
+
+  @Override
+  public Optional<StreamPacket> streamFile(final String path) {
+
+    StreamPacket packet = null;
+
+    final URI uri = prototypeURI(path);
+
+    long start = System.currentTimeMillis();
+
+    if (repoDef.getRefresh() < 1) {
+      if (!gitPull()) {
+        logger.error("Pull operation failed. Possibly reading stale values");
+      }
+    }
+
+    logger.debug("Requesting git path: " + uri.toString());
+
+    try (InputStream is = new FileInputStream(new File(uri))) {
+
+      if (is != null) {
+        packet = new StreamPacket(uri, is);
+      }
+
+    } catch (IOException io) {
+
+      logger.debug(io.getMessage());
+      // Nothing, simply file not there
+    }
+
+    logger.trace("Git connector took: " + (System.currentTimeMillis() - start) + "ms to fetch "
+        + path.toString());
+
+    return Optional.ofNullable(packet);
+  }
 
 }
