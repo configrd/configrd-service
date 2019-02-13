@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.SystemProperties;
+import io.configrd.core.source.RepoDef;
 
 public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
 
@@ -20,9 +20,8 @@ public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
   public static void setup() throws Throwable {
 
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
-        "https://config.appcrossings.net.s3.amazonaws.com/s3-repos.yaml");
-    init.put(SystemProperties.CONFIGRD_CONFIG_SOURCE, "s3");
+    init.put(RepoDef.URI_FIELD, "https://config.appcrossings.net.s3.amazonaws.com/s3-repos.yaml");
+    init.put(RepoDef.SOURCE_NAME_FIELD, "s3");
 
     TestConfigServer.serverStart(init);
     logger.info("Running " + GetTextValuesFromS3PathITCase.class.getName());

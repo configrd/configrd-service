@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import io.configrd.core.source.DefaultConfigSource;
+import io.configrd.core.source.FileConfigSource;
+import io.configrd.core.source.FileStreamSource;
 import io.configrd.core.source.PropertyPacket;
+import io.configrd.core.source.StreamPacket;
 import io.configrd.core.source.StreamSource;
 import io.configrd.core.source.WritableConfigSource;
 
-public class S3ConfigSource extends DefaultConfigSource implements WritableConfigSource {
+public class S3ConfigSource extends DefaultConfigSource implements WritableConfigSource, FileConfigSource {
 
   public S3ConfigSource(S3StreamSource source, Map<String, Object> values) {
     super(source, values);
@@ -18,7 +21,7 @@ public class S3ConfigSource extends DefaultConfigSource implements WritableConfi
   @Override
   public Map<String, Object> getRaw(String path) {
 
-    Optional<PropertyPacket> stream = streamSource.stream(path);
+    Optional<? extends PropertyPacket> stream = streamSource.stream(path);
 
     if (!stream.isPresent())
       return new HashMap<>();
@@ -55,6 +58,12 @@ public class S3ConfigSource extends DefaultConfigSource implements WritableConfi
   public boolean patch(String path, String etag, Map<String, Object> props) {
     // TODO Auto-generated method stub
     return false;
+  }
+
+
+  @Override
+  public Optional<StreamPacket> getFile(String path) {
+    return ((FileStreamSource) streamSource).streamFile(path);
   }
 
 }

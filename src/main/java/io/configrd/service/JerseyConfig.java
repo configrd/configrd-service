@@ -13,14 +13,7 @@ public class JerseyConfig extends ResourceConfig {
 
   public JerseyConfig() throws IOException {
 
-    String configrdConfigUri =
-        (String) InitializationContext.get().params().get(SystemProperties.CONFIGRD_CONFIG_URI);
-
-    String configrdConfigStreamSource =
-        (String) InitializationContext.get().params().get(SystemProperties.CONFIGRD_CONFIG_SOURCE);
-
-    ConfigSourceResolver resolver =
-        new ConfigSourceResolver(configrdConfigUri, configrdConfigStreamSource);
+    ConfigSourceResolver resolver = new ConfigSourceResolver(InitializationContext.get().params());
 
     service = new ConfigrdServiceImpl(resolver);
     registerInstances(service);

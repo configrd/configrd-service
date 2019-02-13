@@ -2,6 +2,7 @@ service:
   defaults:
     fileName: default.properties
     hostsName: hosts.properties
+    sourceName: http
   repos:
     appx-d:
       uri: http://config.appcrossings.net/env/dev

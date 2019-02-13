@@ -27,7 +27,7 @@ import io.configrd.core.processor.JsonProcessor;
 import io.configrd.core.processor.ProcessorSelector;
 import io.configrd.core.processor.PropertiesProcessor;
 import io.configrd.core.processor.YamlProcessor;
-import io.configrd.core.source.AdHocStreamSource;
+import io.configrd.core.source.FileStreamSource;
 import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.RepoDef;
 import io.configrd.core.source.StreamPacket;
@@ -35,21 +35,22 @@ import io.configrd.core.source.StreamSource;
 import io.configrd.core.util.StringUtils;
 import io.configrd.core.util.URIBuilder;
 
-public class S3StreamSource implements StreamSource, AdHocStreamSource {
+public class S3StreamSource implements StreamSource, FileStreamSource {
 
   private final static Logger logger = LoggerFactory.getLogger(S3StreamSource.class);
 
   private final S3RepoDef repoDef;
   private final URIBuilder builder;
-  private final AmazonS3 s3Client;
+  private AmazonS3 s3Client;
   private final String bucketName;
+  private final AWSCredentialsProvider creds;
 
   public static final String S3 = "s3";
 
   public S3StreamSource(S3RepoDef repoDef, AWSCredentialsProvider creds) {
 
     this.repoDef = repoDef;
-    builder = URIBuilder.create(repoDef.toURI());
+    builder = URIBuilder.create(toURI());
 
     if (this.repoDef.getTrustCert() == null && StringUtils
         .hasText(System.getProperty(io.configrd.service.SystemProperties.S3_TRUST_CERTS))) {
@@ -57,70 +58,36 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
           Boolean.valueOf(System.getProperty(io.configrd.service.SystemProperties.S3_TRUST_CERTS)));
     }
 
-    bucketName = extractBucketName(repoDef.toURI());
+    bucketName = extractBucketName(toURI());
 
-    s3Client = AmazonS3ClientBuilder.standard().withRegion("us-east-1")
-        .withForceGlobalBucketAccessEnabled(true).withCredentials(creds).build();
+    this.creds = creds;
+
+  }
+
+  private URI toURI() {
+    URIBuilder builder =
+        URIBuilder.create(URI.create(repoDef.getUri())).setFileNameIfMissing(repoDef.getFileName());
+    return builder.build();
   }
 
   @Override
-  public Optional<PropertyPacket> stream(URI uri) {
+  public Optional<? extends PropertyPacket> stream(String path) {
 
-    StreamPacket packet = null;
+    Optional<StreamPacket> packet = streamFile(path);
 
-    long start = System.currentTimeMillis();
+    URI uri = prototypeURI(path);
 
-    String path = org.apache.commons.lang3.StringUtils.removeStart(uri.getPath(), "/");
+    try {
 
-    logger.debug("Requesting bucket " + bucketName + ", path: " + path);
-
-    try (S3Object object = s3Client.getObject(bucketName, path);) {
-
-      if (object.getObjectContent() != null) {
-
-        packet = new StreamPacket(uri, object.getObjectContent(),
-            object.getObjectMetadata().getContentLength());
-        packet.setETag(object.getObjectMetadata().getETag());
-        packet.putAll(ProcessorSelector.process(uri.toString(), packet.bytes()));
-
-      } else {
-
-        logger.debug("No file found: " + bucketName + " path:" + path);
-
+      if (packet.isPresent()) {
+        packet.get().putAll(
+            ProcessorSelector.process(packet.get().getUri().toString(), packet.get().bytes()));
       }
-
-    } catch (AmazonS3Exception e) {
-
-      if (e.getStatusCode() != 404) {
-        logger.error(e.getMessage());
-        Throwables.propagate(e);
-      }
-
-    } catch (IOException io) {
-
-      logger.error(io.getMessage(), io);
-      Throwables.propagate(io);
-
+    } catch (IOException e) {
+      logger.error(e.getMessage());
     }
 
-    logger.trace(
-        "Amazon Connector Took: " + (System.currentTimeMillis() - start) + "ms to fetch " + uri);
-
-    return Optional.ofNullable(packet);
-  }
-
-  @Override
-  public Optional<PropertyPacket> stream(String path) {
-    Optional<PropertyPacket> is = Optional.empty();
-
-    if (builder != null) {
-
-      URI tempUri = prototypeURI(path);
-      is = stream(tempUri);
-
-    }
-
-    return is;
+    return packet;
   }
 
   public boolean put(String path, PropertyPacket packet) {
@@ -202,14 +169,62 @@ public class S3StreamSource implements StreamSource, AdHocStreamSource {
 
   @Override
   public void close() {
-    // TODO Auto-generated method stub
+    s3Client.shutdown();
 
   }
 
   @Override
   public void init() {
-    // TODO Auto-generated method stub
+    s3Client = AmazonS3ClientBuilder.standard().withRegion("us-east-1")
+        .withForceGlobalBucketAccessEnabled(true).withCredentials(creds).build();
+  }
 
+  @Override
+  public Optional<StreamPacket> streamFile(String path) {
+
+    StreamPacket packet = null;
+
+    URI uri = prototypeURI(path);
+
+    long start = System.currentTimeMillis();
+
+    String fpath = org.apache.commons.lang3.StringUtils.removeStart(uri.getPath(), "/");
+
+    logger.debug("Requesting bucket " + bucketName + ", path: " + fpath);
+
+    try (S3Object object = s3Client.getObject(bucketName, fpath);) {
+
+      if (object.getObjectContent() != null) {
+
+        packet = new StreamPacket(uri, object.getObjectContent(),
+            object.getObjectMetadata().getContentLength());
+        packet.setETag(object.getObjectMetadata().getETag());
+
+      } else {
+
+        logger.debug("No file found: " + bucketName + " path:" + fpath);
+
+      }
+
+    } catch (AmazonS3Exception e) {
+
+      if (e.getStatusCode() != 404) {
+        logger.error(e.getMessage());
+        Throwables.propagate(e);
+      }
+
+    } catch (IOException io) {
+
+      logger.error(io.getMessage());
+      Throwables.propagate(io);
+
+    }
+
+    logger.trace(
+        "Amazon Connector Took: " + (System.currentTimeMillis() - start) + "ms to fetch " + uri);
+
+
+    return Optional.ofNullable(packet);
   }
 
 }

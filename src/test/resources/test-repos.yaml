@@ -2,16 +2,19 @@ service:
   defaults:
     fileName: default.properties
     hostsName: hosts.properties
+    sourceName: file
   repos:
     git-master:
       uri: git://git@github.com:configrd/configrd-client.git#master
       root: src/test/resources
+      sourceName: git
     http-resource:
       uri: https://raw.githubusercontent.com/configrd/configrd-client/master/src/test/resources
       username: 
       password:
       fileName: default.properties
       hostsName: hosts.properties
+      sourceName: http
       named:
         custom: env/dev/custom
         simple: env/dev/simple

@@ -2,6 +2,7 @@ service:
   defaults:
     fileName: default.properties
     hostsName: hosts.properties
+    sourceName: file
   repos:
     appx-d:
       uri: classpath:/env/dev

@@ -10,3 +10,4 @@
 /docker-start.sh
 /run-jar.sh
 /dependency-reduced-pom.xml
+/aws.zip

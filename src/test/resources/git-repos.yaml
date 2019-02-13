@@ -1,0 +1,31 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+    localClone: /srv/configrd
+    authMethod: CodeCommitGitCreds
+    username: ${aws.codecommit.git.user}
+    password: ${aws.codecommit.git.secret}
+    sourceName: git
+  repos:
+    appx-d:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+      fileName: default.json
+    appx-j:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+      fileName: default.json
+    appx-y:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+      fileName: default.yaml
+    classpath:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+    default:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple
+    classpath-env:
+      uri: https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test
+      named:
+        custom: env/dev/custom
+        simple: env/dev/simple

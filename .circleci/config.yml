@@ -6,25 +6,29 @@ jobs:
     environment:
       CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
     steps:
+    - add_ssh_keys:
+          fingerprints:
+            - "72:21:1b:8c:0e:23:94:63:64:dd:39:4d:b2:7f:b6:07"
     - checkout
-    - run:
-        name: Download vault
-        command: |
-                  curl https://releases.hashicorp.com/vault/0.11.1/vault_0.11.1_linux_amd64.zip --output ./vault.zip
-                  unzip vault.zip
-                  ./vault server -dev &
-                  export VAULT_ADDR=http://127.0.0.1:8200
-                  sleep 2
-                  ./vault auth enable userpass
-                  ./vault write auth/userpass/users/test password=password policies=admins
-                  ./vault policy write admins src/test/resources/vault/admin.hcl
     - run: sudo chown circleci:circleci /srv -R
-    - run: mvn clean install -B -s .circleci/settings.xml -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} -Daws.secretKey={AWS_SECRET_KEY}
+    - run: |
+             mvn clean install -B -s .circleci/settings.xml \
+             -Daws.accessKeyId=${AWS_ACCESS_KEY_ID} \
+             -Daws.secretKey=${AWS_SECRET_KEY} \
+             -Daws.codecommit.git.user=${AWS_CODECOMMIT_GIT_USER} \
+             -Daws.codecommit.git.secret=${AWS_CODECOMMIT_GIT_SECRET} \
+             -Daws.codecommit.iam.user=${AWS_CODECOMMIT_IAM_USER} \
+             -Daws.codecommit.iam.secret=${AWS_CODECOMMIT_IAM_SECRET} \
+             -Daws.codecommit.ssh.id=${AWS_CODECOMMIT_SSH_ID} \
+             -Daws.codecommit.ssh.privatekey=${AWS_CODECOMMIT_SSH_PRIVATEKEY} \
+             -Dgithub.user=${GITHUB_USER} \
+             -Dgithub.secret=${GITHUB_SECRET} \
+             -Dgithub.ssh.privatekey=${GITHUB_SSH_PRIVATEKEY} \
+             -Dgithub.token=${GITHUB_TOKEN}
     - save_cache:
         key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{ .Environment.CIRCLE_SHA1 }}
         paths:
         - target
-        - ./vault
         - ~/.m2
     - store_test_results:
         paths:

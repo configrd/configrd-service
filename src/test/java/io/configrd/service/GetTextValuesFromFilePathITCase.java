@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.SystemProperties;
+import io.configrd.core.source.RepoDef;
 
 public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
 
@@ -33,7 +33,8 @@ public class GetTextValuesFromFilePathITCase extends AbstractTestSuiteITCase {
         new File("/tmp/junit"));
 
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "file:/tmp/junit/file-repos.yaml");
+    init.put(RepoDef.URI_FIELD, "file:/tmp/junit/file-repos.yaml");
+    init.put(RepoDef.SOURCE_NAME_FIELD, "file");
 
     TestConfigServer.serverStart(init);
 

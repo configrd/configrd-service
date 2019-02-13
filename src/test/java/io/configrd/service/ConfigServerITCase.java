@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.configrd.core.source.RepoDef;
 
 
 public class ConfigServerITCase {
@@ -24,9 +25,8 @@ public class ConfigServerITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    init.put(io.configrd.service.SystemProperties.CONFIGRD_SERVER_PORT, "8891");
-    init.put(io.configrd.service.SystemProperties.CONFIGRD_CONFIG_URI,
-        ConfigrdServer.DEFAULT_CONFIG_URI);
+    init.put(RepoDef.URI_FIELD, ConfigrdServer.DEFAULT_CONFIG_URI);
+    init.put(RepoDef.SOURCE_NAME_FIELD, "file");
 
     server = new ConfigrdServer();
     Files.createDirectories(Paths.get("/srv/configrd/"));

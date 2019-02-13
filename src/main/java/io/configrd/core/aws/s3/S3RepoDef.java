@@ -9,7 +9,6 @@ import io.configrd.core.source.DefaultRepoDef;
 import io.configrd.core.source.FileBasedRepo;
 import io.configrd.core.source.SecuredRepo;
 import io.configrd.core.util.StringUtils;
-import io.configrd.core.util.URIBuilder;
 import io.configrd.core.util.UriUtil;
 
 @SuppressWarnings("serial")
@@ -101,18 +100,11 @@ public class S3RepoDef extends DefaultRepoDef implements SecuredRepo, FileBasedR
   }
 
   @Override
-  public URI toURI() {
-    URIBuilder builder =
-        URIBuilder.create(URI.create(getUri())).setFileNameIfMissing(getFileName());
-    return builder.build();
-  }
-
-  @Override
   public String[] valid() {
 
     List<String> err = new ArrayList<>();
 
-    URI uri = toURI();
+    URI uri = URI.create(getUri());
 
     if (StringUtils.hasText(getAuthMethod()) && getAuthMethod().equals(AuthMethod.UserPass.name())
         && (!StringUtils.hasText(getUsername()) || !StringUtils.hasText(getPassword()))) {

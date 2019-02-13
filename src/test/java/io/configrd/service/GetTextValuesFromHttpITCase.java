@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.SystemProperties;
+import io.configrd.core.source.RepoDef;
 
 public class GetTextValuesFromHttpITCase extends AbstractTestSuiteITCase {
 
@@ -21,10 +21,9 @@ public class GetTextValuesFromHttpITCase extends AbstractTestSuiteITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(SystemProperties.CONFIGRD_CONFIG_URI,
-        "http://config.appcrossings.net/http-repos.yaml");
+    init.put(RepoDef.URI_FIELD, "http://config.appcrossings.net/http-repos.yaml");
+    init.put(RepoDef.SOURCE_NAME_FIELD, "http");
 
     TestConfigServer.serverStart(init);
     logger.info("Running " + GetTextValuesFromHttpITCase.class.getName());

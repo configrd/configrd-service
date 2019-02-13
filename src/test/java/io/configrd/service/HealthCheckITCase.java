@@ -10,7 +10,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import io.configrd.core.SystemProperties;
+import io.configrd.core.source.RepoDef;
 
 public class HealthCheckITCase extends TestConfigServer {
 
@@ -23,7 +23,8 @@ public class HealthCheckITCase extends TestConfigServer {
   public static void setup() throws Throwable {
 
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(SystemProperties.CONFIGRD_CONFIG_URI, "classpath:classpath-repos.yaml");
+    init.put(RepoDef.URI_FIELD, "classpath:classpath-repos.yaml");
+    init.put(RepoDef.SOURCE_NAME_FIELD, "file");
 
     TestConfigServer.serverStart(init);
   }

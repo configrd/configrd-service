@@ -21,15 +21,18 @@ public abstract class TestConfigServer {
     try {
       server.start(init);
     } catch (BindException e) {
+
       // ignore
+
     } catch (Throwable e) {
       throw e;
     }
   }
 
   public static void serverStop() throws Exception {
-    if (server != null)
+    if (server != null) {
       server.stop();
+    }
 
     server = null;
   }

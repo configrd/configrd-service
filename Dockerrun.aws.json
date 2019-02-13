@@ -1,0 +1,20 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+      "Name": "configrd/configrd-service:latest",
+      "Update": "true"
+    },
+    "Ports": [
+      {
+        "ContainerPort": 9191,
+        "HostPort": 80
+      }
+    ],
+    "Volumes": [
+      {
+        "HostDirectory": "/srv/configrd",
+        "ContainerDirectory": "/srv/configrd"
+      }
+    ],
+    "Logging": "/var/log/nginx"
+  }
