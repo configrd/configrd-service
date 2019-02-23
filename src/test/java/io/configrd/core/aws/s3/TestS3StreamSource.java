@@ -14,12 +14,15 @@ public class TestS3StreamSource {
   private final S3ConfigSourceFactory factory = new S3ConfigSourceFactory();
   private S3StreamSource stream;
 
+  private String accessKey = System.getProperty("aws.accessKeyId");
+  private String secretKey = System.getProperty("aws.secretKey");
+
   @Before
   public void init() {
 
     Map<String, Object> vals = new HashMap<>();
-    vals.put(S3RepoDef.USERNAME_FIELD, "AKIAI6M7YYJO3VNVWSZA");
-    vals.put(S3RepoDef.PASSWORD_FIELD, "/XK+4nqdMOmcJYBj+rshL0Z7qH8rGyTm3yqkWZKA");
+    vals.put(S3RepoDef.USERNAME_FIELD, accessKey);
+    vals.put(S3RepoDef.PASSWORD_FIELD, secretKey);
     vals.put(S3RepoDef.AUTH_METHOD_FIELD, "UserPass");
     vals.put(RepoDef.URI_FIELD, "https://s3.amazonaws.com/config.appcrossings.net");
 
