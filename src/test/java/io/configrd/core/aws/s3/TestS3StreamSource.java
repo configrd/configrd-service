@@ -21,13 +21,8 @@ public class TestS3StreamSource {
   public void init() {
 
     Map<String, Object> vals = new HashMap<>();
-<<<<<<< HEAD
-    vals.put(S3RepoDef.USERNAME_FIELD, "AKIAI6M7YYJO3VNVWSZA");
-    vals.put(S3RepoDef.PASSWORD_FIELD, "/XK+4nqdMOmcJYBj+rshL0Z7qH8rGyTm3yqkWZKA");
-=======
     vals.put(S3RepoDef.USERNAME_FIELD, accessKey);
     vals.put(S3RepoDef.PASSWORD_FIELD, secretKey);
->>>>>>> git-connector
     vals.put(S3RepoDef.AUTH_METHOD_FIELD, "UserPass");
     vals.put(RepoDef.URI_FIELD, "https://s3.amazonaws.com/config.appcrossings.net");
 
