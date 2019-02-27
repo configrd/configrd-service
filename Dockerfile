@@ -1,9 +1,10 @@
 FROM openjdk:8u181-jre-alpine3.8
 MAINTAINER Krzysztof Karski <kkkarski@gmail.com>
 
-ENV CONFIG_URI file:/srv/configrd/repo-defaults.yml
+ENV CONFIG_URI file:/srv/configrd/configrd.yaml
+ENV CONFIG_FILE ""
 ENV PORT 9191
-ENV STREAMSOURCE file
+ENV SOURCENAME ""
 ENV AWS_ACCESS_KEY_ID ""
 ENV AWS_SECRET_ACCESS_KEY ""
 ENV GIT_USER ""
@@ -25,7 +26,8 @@ ENTRYPOINT java -Djava.security.egd=file:/dev/./urandom \
 				-jar ./configrd-service-2.0.0.jar ConfigrdServer \
 				-u $CONFIG_URI \
 				-p $PORT \
-				-s $STREAMSOURCE \
+				-s $SOURCENAME \
+				-f $CONFIG_FILE \
 				-gitu $GIT_USER \
 				-gits $GIT_SECRET \
 				-gitt $GIT_TOKEN \

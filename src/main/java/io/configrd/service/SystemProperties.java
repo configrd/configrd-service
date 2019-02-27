@@ -20,7 +20,7 @@ public interface SystemProperties {
   /**
    * Which config source should be used to fetch the configrd config yaml file?
    */
-  public static final String CONFIGRD_CONFIG_SOURCE = "configrd.config.streamSource";
+  public static final String CONFIGRD_CONFIG_SOURCE = "configrd.config.sourceName";
   /**
    * Should s3 config source trust all certs? True/False
    */

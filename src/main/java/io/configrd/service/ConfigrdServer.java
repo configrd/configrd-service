@@ -43,8 +43,7 @@ public class ConfigrdServer {
   private DeploymentManager deploymentManager;
 
   public static final String DEFAULT_PORT = "9191";
-  public static final String DEFAULT_STREAMSOURCE = "file";
-  public static final String DEFAULT_TRUST_CERTS = "false";
+
   public static final String DEFAULT_CONFIG_URI =
       "file:/srv/configrd/" + ConfigSourceResolver.DEFAULT_CONFIG_FILE;
   public static final String DEFAULT_LOCAL_CLONE = "/srv/configrd";
@@ -73,13 +72,14 @@ public class ConfigrdServer {
         .type(String.class).desc("Port number. Default: " + DEFAULT_PORT).build();
     options.addOption(port);
 
-    Option stream = Option.builder("s").optionalArg(true).argName("name").longOpt("stream").hasArg()
-        .type(String.class)
-        .desc("Name of stream source [file, http, s3]. Default: " + DEFAULT_STREAMSOURCE).build();
+    Option stream = Option.builder("s").optionalArg(true).argName("name").longOpt("source").hasArg()
+        .type(String.class).desc("Name of source [file, http, s3, git]. Default: "
+            + ConfigSourceResolver.DEFAULT_SOURCENAME)
+        .build();
     options.addOption(stream);
 
-    Option trustCert =
-        new Option("trustCert", "Trust all http certs. Default: " + DEFAULT_TRUST_CERTS);
+    Option trustCert = new Option("trustCert",
+        "Trust all http certs. Default: " + ConfigSourceResolver.DEFAULT_TRUST_CERTS);
     options.addOption(trustCert);
 
     Option git_user = Option.builder("gitu").optionalArg(true)
@@ -123,10 +123,9 @@ public class ConfigrdServer {
 
         init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
 
-        init.put(RepoDef.SOURCE_NAME_FIELD, line.getOptionValue("s", DEFAULT_STREAMSOURCE));
+        init.put(RepoDef.SOURCE_NAME_FIELD, line.getOptionValue("s"));
 
-        init.put(RepoDef.TRUST_CERTS_FIELD,
-            line.getOptionValue(SystemProperties.HTTP_TRUST_CERTS, DEFAULT_TRUST_CERTS));
+        init.put(RepoDef.TRUST_CERTS_FIELD, line.getOptionValue(SystemProperties.HTTP_TRUST_CERTS));
 
         init.put(GitRepoDef.CONFIGRD_CONFIG_FILENAME_FIELD,
             line.getOptionValue("f", ConfigSourceResolver.DEFAULT_CONFIG_FILE));
@@ -227,7 +226,7 @@ public class ConfigrdServer {
   public void stop() {
 
     if (undertow != null) {
-      
+
       logger.info("Stopping server");
 
       if (deploymentManager != null) {
