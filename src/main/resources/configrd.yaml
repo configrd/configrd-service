@@ -1,8 +1,7 @@
 service:
   defaults:
     fileName: default.properties
-    hostsName: hosts.properties
   repos:
     default:
       uri: file:/srv/configrd
-      streamSource: file
+      sourceName: file

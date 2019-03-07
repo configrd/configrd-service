@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.configrd.core.ConfigSourceResolver;
 import io.configrd.core.source.RepoDef;
 
 
@@ -25,7 +26,7 @@ public class ConfigServerITCase {
   @BeforeClass
   public static void setup() throws Throwable {
 
-    init.put(RepoDef.URI_FIELD, ConfigrdServer.DEFAULT_CONFIG_URI);
+    init.put(RepoDef.URI_FIELD, ConfigSourceResolver.DEFAULT_CONFIG_URI);
     init.put(RepoDef.SOURCE_NAME_FIELD, "file");
 
     server = new ConfigrdServer();
@@ -37,7 +38,7 @@ public class ConfigServerITCase {
   public void testInitializeDefaultConfigFile() throws Exception {
 
     server.init_repos(init);
-    Assert.assertTrue(Files.exists(Paths.get(URI.create(ConfigrdServer.DEFAULT_CONFIG_URI))));
+    Assert.assertTrue(Files.exists(Paths.get(URI.create(ConfigSourceResolver.DEFAULT_CONFIG_URI))));
 
   }
 

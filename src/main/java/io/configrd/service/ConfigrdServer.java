@@ -43,9 +43,6 @@ public class ConfigrdServer {
   private DeploymentManager deploymentManager;
 
   public static final String DEFAULT_PORT = "9191";
-
-  public static final String DEFAULT_CONFIG_URI =
-      "file:/srv/configrd/" + ConfigSourceResolver.DEFAULT_CONFIG_FILE;
   public static final String DEFAULT_LOCAL_CLONE = "/srv/configrd";
 
   public static void main(String[] args) throws Throwable {
@@ -57,9 +54,9 @@ public class ConfigrdServer {
     Option help = new Option("help", "print this message");
     options.addOption(help);
 
-    Option uri = Option.builder("u").optionalArg(true).argName("uri").hasArg().type(URI.class)
-        .desc("Absolute path of configrd config uri. Default: " + DEFAULT_CONFIG_URI).longOpt("uri")
-        .build();
+    Option uri = Option.builder("u").optionalArg(true).argName("uri").hasArg().type(URI.class).desc(
+        "Absolute path of configrd config uri. Default: " + ConfigSourceResolver.DEFAULT_CONFIG_URI)
+        .longOpt("uri").build();
     options.addOption(uri);
 
     Option file = Option.builder("f").optionalArg(true).argName("file").hasArg().type(String.class)
@@ -119,16 +116,12 @@ public class ConfigrdServer {
 
       } else {
 
-        init.put(RepoDef.URI_FIELD, line.getOptionValue("u", DEFAULT_CONFIG_URI));
+        init.put(RepoDef.URI_FIELD, line.getOptionValue("u"));
 
         init.put(SystemProperties.CONFIGRD_SERVER_PORT, line.getOptionValue("p", DEFAULT_PORT));
-
         init.put(RepoDef.SOURCE_NAME_FIELD, line.getOptionValue("s"));
-
-        init.put(RepoDef.TRUST_CERTS_FIELD, line.getOptionValue(SystemProperties.HTTP_TRUST_CERTS));
-
-        init.put(GitRepoDef.CONFIGRD_CONFIG_FILENAME_FIELD,
-            line.getOptionValue("f", ConfigSourceResolver.DEFAULT_CONFIG_FILE));
+        init.put(RepoDef.TRUST_CERTS_FIELD, line.getOptionValue("trustCert"));
+        init.put(GitRepoDef.CONFIGRD_CONFIG_FILENAME_FIELD, line.getOptionValue("f"));
         init.put(GitRepoDef.USERNAME_FIELD, line.getOptionValue("gitu"));
         init.put(GitRepoDef.USERNAME_FIELD, line.getOptionValue("gitt"));
         init.put(GitRepoDef.USERNAME_FIELD, line.getOptionValue("pk"));
@@ -164,7 +157,7 @@ public class ConfigrdServer {
       initParama.put(GitRepoDef.LOCAL_CLONE_FIELD, DEFAULT_LOCAL_CLONE);
     }
 
-    logger.debug("Initializing using params:" + initParama);
+    logger.debug("Passed params:" + initParama);
 
     init_repos(initParama);
 
@@ -194,7 +187,7 @@ public class ConfigrdServer {
         throw ex;
       }
 
-      logger.info("Server started on port " + port);
+      logger.info("Configrd starting on port " + port);
 
       DeploymentInfo servletBuilder = Servlets.deployment()
           .setClassLoader(ConfigrdServer.class.getClassLoader()).setContextPath("/")
@@ -204,22 +197,23 @@ public class ConfigrdServer {
               .addMapping("/configrd/*"))
           .setDeploymentName("Application.war");
 
-      logger.info("Starting application deployment");
+      logger.info("Starting configrd...");
 
       deploymentManager = Servlets.defaultContainer().addDeployment(servletBuilder);
       deploymentManager.deploy();
 
       try {
+        
         path.addPrefixPath("/", deploymentManager.start());
-      } catch (ServletException e) {
+        logger.info("Application deployed");
+        
+      } catch (Exception e) {
         Throwable ex = Throwables.getRootCause(e);
         logger.error(ex.getMessage());
         throw ex;
-      }
-
-      logger.info("Application deployed");
+      }     
     }
-    logger.info("Server started in " + (System.currentTimeMillis() - start) / 1000 + "s");
+    logger.info("Configrd started in " + (System.currentTimeMillis() - start) / 1000 + "s");
 
   }
 
@@ -227,7 +221,7 @@ public class ConfigrdServer {
 
     if (undertow != null) {
 
-      logger.info("Stopping server");
+      logger.info("Stopping configrd...");
 
       if (deploymentManager != null) {
         deploymentManager.undeploy();
@@ -237,9 +231,9 @@ public class ConfigrdServer {
       undertow.stop();
       undertow = null;
 
-      logger.info("Server stopped");
+      logger.info("Configrd stopped");
     } else {
-      logger.info("Server already stopped");
+      logger.info("Configrd already stopped");
     }
 
   }
@@ -248,10 +242,10 @@ public class ConfigrdServer {
 
     String path = (String) initParama.get(RepoDef.URI_FIELD);
 
-    URI uri = URI.create(DEFAULT_CONFIG_URI);
+    URI uri = URI.create(ConfigSourceResolver.DEFAULT_CONFIG_URI);
 
     if (Files.notExists(Paths.get(uri), new LinkOption[] {}) && (!StringUtils.hasText(path)
-        || path.toLowerCase().equals(DEFAULT_CONFIG_URI.toLowerCase()))) {
+        || path.toLowerCase().equals(ConfigSourceResolver.DEFAULT_CONFIG_URI.toLowerCase()))) {
 
       try (java.io.InputStream s = getClass().getClassLoader()
           .getResourceAsStream(ConfigSourceResolver.DEFAULT_CONFIG_FILE)) {
@@ -259,7 +253,7 @@ public class ConfigrdServer {
         if (s != null) {
 
           logger.warn("No alternative configrd config file specified. Creating default file "
-              + DEFAULT_CONFIG_URI
+              + ConfigSourceResolver.DEFAULT_CONFIG_URI
               + ". If you are running from within a docker container please ensure the path /srv/configrd is mapped to a volume.");
 
           Files.createDirectories(Paths.get("/srv/configrd"));
@@ -271,7 +265,8 @@ public class ConfigrdServer {
         }
 
       } catch (Exception e) {
-        logger.error("Unable to create default configrd config file at " + DEFAULT_CONFIG_URI, e);
+        logger.error("Unable to create default configrd config file at "
+            + ConfigSourceResolver.DEFAULT_CONFIG_URI, e);
         throw e;
       }
     }
