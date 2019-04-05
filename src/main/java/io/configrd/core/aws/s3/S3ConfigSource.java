@@ -12,7 +12,7 @@ import io.configrd.core.source.StreamPacket;
 import io.configrd.core.source.StreamSource;
 import io.configrd.core.source.WritableConfigSource;
 
-public class S3ConfigSource extends DefaultConfigSource implements WritableConfigSource, FileConfigSource {
+public class S3ConfigSource extends DefaultConfigSource<S3StreamSource> implements WritableConfigSource, FileConfigSource {
 
   public S3ConfigSource(S3StreamSource source, Map<String, Object> values) {
     super(source, values);

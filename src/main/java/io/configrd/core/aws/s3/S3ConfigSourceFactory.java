@@ -6,13 +6,12 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import io.configrd.core.aws.s3.S3RepoDef.AuthMethod;
-import io.configrd.core.source.ConfigSource;
 import io.configrd.core.source.ConfigSourceFactory;
 
-public class S3ConfigSourceFactory implements ConfigSourceFactory {
+public class S3ConfigSourceFactory implements ConfigSourceFactory<S3ConfigSource> {
 
   @Override
-  public ConfigSource newConfigSource(String name, Map<String, Object> values) {
+  public S3ConfigSource newConfigSource(String name, Map<String, Object> values) {
 
     S3StreamSource source = newStreamSource(name, values);
     S3ConfigSource configSource = new S3ConfigSource(source, values);

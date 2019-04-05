@@ -70,6 +70,10 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
   }
 
+  public boolean put(String path, PropertyPacket packet) {
+    return false;
+  }
+
   @Override
   public void close() throws IOException {
     if (git != null)
@@ -148,7 +152,7 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
         if (StringUtils.hasText(repoDef.getBranchName()))
           git.checkout().setName(repoDef.getBranchName()).call();
-        
+
       } catch (Exception e) {
         logger.error(e.getMessage());
       }

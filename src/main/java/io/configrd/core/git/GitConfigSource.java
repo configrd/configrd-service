@@ -1,5 +1,6 @@
 package io.configrd.core.git;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,10 +10,12 @@ import io.configrd.core.source.FileStreamSource;
 import io.configrd.core.source.PropertyPacket;
 import io.configrd.core.source.StreamPacket;
 import io.configrd.core.source.StreamSource;
+import io.configrd.core.source.WritableConfigSource;
 
-public class GitConfigSource extends DefaultConfigSource implements FileConfigSource {
+public class GitConfigSource extends DefaultConfigSource<GitStreamSource>
+    implements FileConfigSource, WritableConfigSource {
 
-  public GitConfigSource(StreamSource source, Map<String, Object> values) {
+  public GitConfigSource(GitStreamSource source, Map<String, Object> values) {
     super(source, values);
   }
 
@@ -35,6 +38,32 @@ public class GitConfigSource extends DefaultConfigSource implements FileConfigSo
   @Override
   public Optional<StreamPacket> getFile(String path) {
     return ((FileStreamSource) streamSource).streamFile(path);
+  }
+
+  @Override
+  public boolean put(String path, Map<String, Object> props) {
+    GitStreamSource source = getStreamSource();
+
+    PropertyPacket packet = null;
+    if (!(props instanceof PropertyPacket)) {
+
+      packet = new PropertyPacket(URI.create(path));
+      packet.putAll(props);
+
+    } else {
+
+      packet = (PropertyPacket) props;
+
+    }
+
+    boolean success = source.put(path, packet);
+    return success;
+  }
+
+  @Override
+  public boolean patch(String path, String etag, Map<String, Object> props) {
+    // TODO Auto-generated method stub
+    return false;
   }
 
 }

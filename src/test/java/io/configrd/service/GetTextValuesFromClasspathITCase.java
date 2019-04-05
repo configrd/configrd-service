@@ -4,7 +4,9 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -55,6 +57,29 @@ public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
   @Override
   public void testGetPropertiesFromYamlFile() throws Exception {
     super.testGetPropertiesFromYamlFile();
+  }
+
+  @Test
+  public void testGetEncryptedProperties() throws Exception {
+
+    Response resp = target.path("/env/dev/kms").queryParam("r", "kms").request(accept).get();
+    Assert.assertEquals(200, resp.getStatus());
+
+    String body = resp.readEntity(String.class);
+    Properties props = convert(body);
+
+    Assert.assertEquals("classpath", props.getProperty("property.5.name"));
+    Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
+    Assert.assertEquals("ENC(NvuRfrVnqL8yDunzmutaCa6imIzh6QFL)",
+        props.getProperty("property.6.name"));
+
+    Assert.assertEquals("hello", props.getProperty("kms.first.secret"));
+    Assert.assertEquals("hello", props.getProperty("kms.second.SeCRet"));
+    Assert.assertEquals(
+        "ENC(AQICAHgXaEZrD2fRF6NHtVTvoykgmuYYyhsFoqth8Xajiwl7mgFPHO7UxnfVlr/uKB+RCc6WAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMOfKkPfghgateoRBIAgEQgCB1lJhrNbC+lilFjx/4BXDjj2wmMncHJjw9oDtfSnfYaQ==)",
+        props.getProperty("kms.not_secret"));
+    Assert.assertEquals("hello", props.getProperty("kms.encrypted"));
+
   }
 
   @Override

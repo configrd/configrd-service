@@ -25,3 +25,13 @@ service:
       named:
         custom: dev/custom
         simple: dev/simple
+    kms:
+      uri: classpath:/
+      encrypt:
+         aws-kms:
+            keyId: arn:aws:kms:us-west-2:693832995906:key/c5bcaa29-a000-4162-8805-d98b6621a228
+            include:
+               - (?i)SECRET
+               - (?i)property\.6\.name
+            exclude:
+               - (?i)NOT_SECRET

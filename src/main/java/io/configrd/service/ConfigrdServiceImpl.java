@@ -16,6 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.jsoniter.output.JsonStream;
 import io.configrd.core.ConfigSourceResolver;
+import io.configrd.core.filter.FilterChain;
+import io.configrd.core.filter.RequestFilter;
+import io.configrd.core.filter.ResponseFilter;
 import io.configrd.core.processor.PropertiesProcessor;
 import io.configrd.core.source.ConfigSource;
 import io.configrd.core.source.PropertyPacket;
@@ -67,7 +70,7 @@ public class ConfigrdServiceImpl implements ConfigrdService {
     if (!StringUtils.hasText(path))
       path = "/";
 
-    Optional<ConfigSource> source = resolver.findByRepoName(repo);
+    Optional<ConfigSource> source = resolver.findConfigSourceByName(repo);
     Map<String, Object> props = new HashMap<>();
 
     if (source.isPresent()) {
@@ -81,7 +84,11 @@ public class ConfigrdServiceImpl implements ConfigrdService {
         props = source.get().get(path, named);
 
       }
-    }
+      
+      FilterChain chain = resolver.findFilterChainByName(repo, ResponseFilter.class);
+      props = chain.apply(props);
+      
+    }    
 
     props = new StringUtils(props).filled();
 
@@ -167,7 +174,7 @@ public class ConfigrdServiceImpl implements ConfigrdService {
     if (!StringUtils.hasText(path))
       path = "/";
 
-    Optional<ConfigSource> source = resolver.findByRepoName(repo);
+    Optional<ConfigSource> source = resolver.findConfigSourceByName(repo);
 
     if (source.isPresent() && source.get() instanceof WritableConfigSource) {
 
@@ -176,9 +183,14 @@ public class ConfigrdServiceImpl implements ConfigrdService {
       Properties props = new Properties();
       props.load(body);
 
+      Map<String, Object> vals = PropertiesProcessor.toMap(props);
+      
+      FilterChain chain = resolver.findFilterChainByName(repo, RequestFilter.class);
+      vals = chain.apply(vals);
+      
       PropertyPacket packet = new PropertyPacket(URI.create(path));
       packet.setETag(eTag);
-      packet.putAll(PropertiesProcessor.toMap(props));
+      packet.putAll(vals);
       boolean success = writer.put(path, packet);
 
       if (success) {

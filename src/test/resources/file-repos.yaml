@@ -24,4 +24,4 @@ service:
       uri: file:/tmp/junit/env
       named:
         custom: dev/custom
-        simple: dev/simple
+        simple: dev/simple      

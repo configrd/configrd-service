@@ -6,13 +6,12 @@ import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import io.configrd.core.git.GitRepoDef.AuthMethod;
-import io.configrd.core.source.ConfigSource;
 import io.configrd.core.source.ConfigSourceFactory;
 
-public class GitConfigSourceFactory implements ConfigSourceFactory {
+public class GitConfigSourceFactory implements ConfigSourceFactory<GitConfigSource> {
 
   @Override
-  public ConfigSource newConfigSource(String name, Map<String, Object> values) {
+  public GitConfigSource newConfigSource(String name, Map<String, Object> values) {
     GitStreamSource source = newStreamSource(name, values);
     GitConfigSource configSource = new GitConfigSource(source, values);
     return configSource;
