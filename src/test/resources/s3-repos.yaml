@@ -1,7 +1,6 @@
 service:
   defaults:
     fileName: default.properties
-    hostsName: hosts.properties
     sourceName: s3
   repos:
     appx-d:
@@ -25,3 +24,8 @@ service:
       named:
         custom: dev/custom
         simple: dev/simple
+    apps:
+      uri: https://config.appcrossings.net.s3.amazonaws.com/apps
+      named:
+        myapp-dev: env/dev/myapp
+        myapp2-dev: env/dev/myapp2

@@ -1,6 +1,7 @@
 package io.configrd.core.git;
 
 import java.io.File;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -43,14 +44,14 @@ public class TestGitStreamSource {
     Assert.assertTrue(packet.isPresent());
 
   }
-  
+
   @Test
   public void testGetValuesWithTimedPull() throws Exception {
 
     vals.put(GitRepoDef.REFRESH_FIELD, 5);
-    
+
     stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
-    
+
     Thread.sleep(12000);
 
     final String key = "env/dev/custom/default.properties";
@@ -59,15 +60,26 @@ public class TestGitStreamSource {
     Assert.assertTrue(packet.isPresent());
 
   }
-  
+
   @Test
   public void testPutValuesAndPush() throws Exception {
+
+    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
+    
+    PropertyPacket packet = new PropertyPacket(URI.create("/"));
+    packet.put("test.value", "1");
+    
+    Assert.assertTrue(stream.put("/", packet));
     
   }
 
   @After
   public void teardown() throws Exception {
-    FileUtils.forceDelete(new File(localClone + "/TestGitStreamSource"));
+    try {
+      FileUtils.forceDelete(new File(localClone + "/TestGitStreamSource"));
+    } catch (Exception e) {
+      // ignore
+    }
   }
 
 }
