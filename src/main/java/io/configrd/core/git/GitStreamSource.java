@@ -322,8 +322,9 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
   private URI toURI() {
 
-    URIBuilder builder = URIBuilder.create().setPath(repoDef.getLocalClone(), repoDef.getRootDir())
-        .setScheme("file").setFileNameIfMissing(repoDef.getFileName());
+    URIBuilder builder = URIBuilder.create()
+        .setPath(repoDef.getLocalClone(), repoDef.getName(), repoDef.getRootDir()).setScheme("file")
+        .setFileNameIfMissing(repoDef.getFileName());
     return builder.build();
 
   }
