@@ -61,18 +61,6 @@ public class TestGitStreamSource {
 
   }
 
-  @Test
-  public void testPutValuesAndPush() throws Exception {
-
-    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
-    
-    PropertyPacket packet = new PropertyPacket(URI.create("/"));
-    packet.put("test.value", "1");
-    
-    Assert.assertTrue(stream.put("/", packet));
-    
-  }
-
   @After
   public void teardown() throws Exception {
     try {
