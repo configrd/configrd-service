@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import io.configrd.core.source.PropertyPacket;
 
-public class TestGitStreamSource {
+public class TestGitStreamSourceGet {
 
   GitStreamSource stream;
   GitConfigSourceFactory factory = new GitConfigSourceFactory();
@@ -59,18 +59,6 @@ public class TestGitStreamSource {
     Optional<? extends PropertyPacket> packet = stream.stream(key);
     Assert.assertTrue(packet.isPresent());
 
-  }
-
-  @Test
-  public void testPutValuesAndPush() throws Exception {
-
-    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
-    
-    PropertyPacket packet = new PropertyPacket(URI.create("/"));
-    packet.put("test.value", "1");
-    
-    Assert.assertTrue(stream.put("/", packet));
-    
   }
 
   @After
