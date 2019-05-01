@@ -27,6 +27,7 @@ public class TestKmsEncryption {
     config = new HashMap<>();
     config.put(AbstractKmsFilter.AWS_ACCESS_KEY_ID, accessKey);
     config.put(AbstractKmsFilter.AWS_SECRET_ACCESS_KEY, secretKey);
+    config.put(AbstractKmsFilter.AWS_DEFAULT_REGION, "us-west-2");
     config.put(AbstractKmsFilter.AWS_KEY_ID,
         "arn:aws:kms:us-west-2:693832995906:key/c5bcaa29-a000-4162-8805-d98b6621a228");
 
