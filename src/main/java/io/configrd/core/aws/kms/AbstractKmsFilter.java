@@ -17,22 +17,24 @@ import io.configrd.core.util.StringUtils;
 
 public abstract class AbstractKmsFilter implements Filter {
 
-  protected static final Logger logger = LoggerFactory.getLogger(AbstractKmsFilter.class);
-
-  public static Pattern ENC_PATTERN = Pattern.compile("ENC\\((.*)\\)");
-  public static final String AWS_KEY_ID = "keyId";
   public static final String AWS_ACCESS_KEY_ID = "username";
+  public static final String AWS_DEFAULT_REGION = "region";
+  public static final String AWS_KEY_ID = "keyId";
   public static final String AWS_SECRET_ACCESS_KEY = "password";
-  public static final String INCLUDES = "include";
+  public static Pattern ENC_PATTERN = Pattern.compile("ENC\\((.*)\\)");
   public static final String EXCLUDES = "exclude";
+  public static final String INCLUDES = "include";
+  protected static final Logger logger = LoggerFactory.getLogger(AbstractKmsFilter.class);
 
   public static final String NAME = "aws-kms";
 
-  protected final String keyId;
-  protected final AWSKMS kmsClient;
-  protected final Pattern incPatterns;
   protected final Pattern excPatterns;
+  protected final Pattern incPatterns;
+  protected final String keyId;
 
+  protected final AWSKMS kmsClient;
+
+  protected final String region;
   public AbstractKmsFilter(Map<String, Object> vals) {
 
     String accessKeyId = (String) vals.getOrDefault(AWS_ACCESS_KEY_ID, "");
@@ -50,12 +52,13 @@ public abstract class AbstractKmsFilter implements Filter {
 
     }
 
-    kmsClient = AWSKMSClientBuilder.standard().withCredentials(creds).build();
-
     this.keyId = (String) vals.get(AWS_KEY_ID);
+    this.region = (String) vals.getOrDefault(AWS_DEFAULT_REGION, "");
     incPatterns = compilePatterns(vals, INCLUDES);
     excPatterns = compilePatterns(vals, EXCLUDES);
 
+    kmsClient =
+        AWSKMSClientBuilder.standard().withCredentials(creds).withRegion(getRegion()).build();
   }
 
   protected Pattern compilePatterns(Map<String, Object> vals, final String key) {
@@ -89,13 +92,17 @@ public abstract class AbstractKmsFilter implements Filter {
     return dest;
   }
 
+  public String getKeyId() {
+    return keyId;
+  }
+
   @Override
   public String getName() {
     return NAME;
   }
 
-  public String getKeyId() {
-    return keyId;
+  public String getRegion() {
+    return region;
   }
 
 }
