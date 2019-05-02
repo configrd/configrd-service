@@ -80,26 +80,24 @@ jobs:
        command: |
           export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
           export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_KEY}
-          aws s3 cp src/test/resources/ s3://config.appcrossings.net/ --recursive --metadata-directive REPLACE
+          aws s3 cp src/test/resources/ s3://config.appcrossings.net/ --recursive --metadata-directive REPLACE --acl public-read
 workflows:
   version: 2
   build_push:
     jobs:
-    - build-service
+    - s3-push:
+         filters:
+            branches:
+               only:
+               - master
+    - build-service    
     - deploy-service:
         requires:
-        - build-service
+        - build-service    
     - docker-push:
         filters:
           branches:
             only:
             - master
         requires:
-        - deploy-service
-    - s3-push:
-         filters:
-            branches:
-               only:
-               - master
-         requires:
-         - docker-push
+        - deploy-service    
