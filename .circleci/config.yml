@@ -69,8 +69,6 @@ jobs:
     - image: circleci/openjdk:8-jdk
     steps:
     - checkout
-    - restore_cache:
-       key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
     - run:
        name: insall awscli
        command: |
