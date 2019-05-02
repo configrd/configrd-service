@@ -1,10 +1,14 @@
 package io.configrd.core.git;
 
 import java.io.File;
+import java.net.URI;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 
@@ -20,13 +24,55 @@ public class GitUtil {
 
   }
 
+  public static boolean pull(Git git) throws Exception {
+    git.pull().call();
+
+    return true;
+
+  }
+
+  public static File modifyFile(Git git, File file) throws Exception {
+
+    git.pull().call();
+
+    URI uri = URI.create(git.getRepository().getDirectory().getParent())
+        .relativize(URI.create(file.getAbsolutePath()));
+
+    FileUtils.writeStringToFile(file, loremIpsum, "UTF-8");
+    DirCache cache = git.add().addFilepattern(uri.toString()).call();
+
+    for (int i = 0; i < cache.getEntryCount(); i++) {
+      logger.debug("Added " + cache.getEntry(i));
+    }
+
+    RevCommit commit = git.commit().setMessage("Modifying file " + uri).call();
+
+    logger.info(commit.getFullMessage());
+
+    Iterable<PushResult> results = git.push().call();
+
+    for (PushResult r : results) {
+
+      if (r.getRemoteUpdates().stream()
+          .allMatch(s -> (RemoteRefUpdate.Status.OK.equals(s.getStatus())
+              || RemoteRefUpdate.Status.UP_TO_DATE.equals(s.getStatus())))) {
+
+        logger.info("Push succeeded.");
+
+      }
+    }
+
+    return file;
+
+  }
+
   public static File addRandomFile(Git git) throws Exception {
 
     git.pull().call();
     File temp = File.createTempFile(UUID.randomUUID().toString(), "txt",
-        git.getRepository().getDirectory());
+        git.getRepository().getDirectory().getParentFile());
     FileUtils.writeStringToFile(temp, loremIpsum, "UTF-8");
-    git.add().setUpdate(true).call();
+    git.add().setUpdate(true).addFilepattern(".").call();
     Iterable<PushResult> results = git.push().call();
 
     for (PushResult r : results) {
@@ -42,9 +88,9 @@ public class GitUtil {
     TemporaryFolder folder = new TemporaryFolder();
     folder.create();
 
-    Git git = Git.cloneRepository().setURI(uri.getAbsolutePath()).setDirectory(folder.getRoot())
-        .call();
-    
+    Git git =
+        Git.cloneRepository().setURI(uri.getAbsolutePath()).setDirectory(folder.getRoot()).call();
+
     return git;
 
   }

@@ -127,7 +127,7 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
   private boolean gitPush(RevCommit commit) {
 
-    boolean success = false;
+    boolean success = true;
 
     if (gitPull()) {
 
@@ -154,16 +154,15 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
         for (PushResult r : result) {
 
-          if (r.getRemoteUpdates().stream()
+          success = success && r.getRemoteUpdates().stream()
               .allMatch(s -> (RemoteRefUpdate.Status.OK.equals(s.getStatus())
-                  || RemoteRefUpdate.Status.UP_TO_DATE.equals(s.getStatus())))) {
+                  || RemoteRefUpdate.Status.UP_TO_DATE.equals(s.getStatus())));
 
-            logger.info("Push " + spec + " succeeded.");
-
-          } else {
-            messages = (r.getRemoteUpdates().stream().map(u -> {
-              return u.getMessage();
-            }).collect(Collectors.toSet()));
+          if (!success) {
+            messages.addAll(r.getRemoteUpdates().stream()
+                .filter(u -> StringUtils.hasText(u.getMessage())).map(u -> {
+                  return u.getStatus() + " - " + u.getMessage();
+                }).collect(Collectors.toSet()));
           }
         }
 
@@ -174,11 +173,14 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
           }
         } else {
           success = true;
+          logger.info("Push " + spec + " succeeded.");
         }
 
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
+    } else {
+      success = false;
     }
 
     return success;
@@ -276,6 +278,7 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
       logger.info("Committed " + revCommit.getName() + ", " + revCommit.getFullMessage());
 
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new RuntimeException(e);
     }
 

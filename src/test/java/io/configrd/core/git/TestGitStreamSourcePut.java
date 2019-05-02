@@ -41,9 +41,9 @@ public class TestGitStreamSourcePut {
 
   @After
   public void cleanup() throws Exception {
-    localClone.delete();
-    GitUtil.cleanup(secondClone);
-    GitUtil.cleanup(remote);
+//    localClone.delete();
+//    GitUtil.cleanup(secondClone);
+//    GitUtil.cleanup(remote);
   }
 
   @Test
@@ -152,4 +152,92 @@ public class TestGitStreamSourcePut {
 
   }
 
+  @Test
+  public void testPutValueWithCustomJsonFile() throws Exception {
+
+    PropertyPacket packet = new PropertyPacket(URI.create("/default.json"));
+    packet.put("test.value", "1");
+
+    Assert.assertFalse(
+        new File(localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.json")
+            .exists());
+
+    Assert.assertTrue(stream.put("/", packet));
+
+    Assert
+        .assertEquals("{\"test.value\":\"1\"}",
+            FileUtils.readFileToString(new File(
+                localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.json"),
+                "UTF-8").trim());
+
+    secondClone = GitUtil.clone(remote.getRepository().getDirectory());
+
+    // Verify in fact remote got the changes by cloning it fresh
+    Assert.assertEquals("{\"test.value\":\"1\"}",
+        FileUtils.readFileToString(
+            new File(secondClone.getRepository().getDirectory().getParent() + "/default.json"),
+            "UTF-8").trim());
+
+  }
+
+  @Test
+  public void testMergeRemoteChanges() throws Exception {
+
+    PropertyPacket packet = new PropertyPacket(URI.create("/"));
+    packet.put("test.value", "1");
+
+    Assert.assertTrue(stream.put("/", packet));
+
+    secondClone = GitUtil.clone(remote.getRepository().getDirectory());
+
+    GitUtil.addRandomFile(secondClone);
+
+    packet.put("test.value2", "2");
+    Assert.assertTrue(stream.put("/", packet));
+
+    GitUtil.pull(secondClone);
+
+    Assert.assertEquals("test.value2=2\ntest.value=1", FileUtils.readFileToString(new File(
+        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties"),
+        "UTF-8").trim());
+
+    // Verify in fact remote got the changes by cloning it fresh
+    Assert.assertEquals("test.value2=2\ntest.value=1",
+        FileUtils.readFileToString(
+            new File(
+                secondClone.getRepository().getDirectory().getParent() + "/default.properties"),
+            "UTF-8").trim());
+
+  }
+
+  @Test
+  public void testMergeConflictingRemoteChanges() throws Exception {
+
+    PropertyPacket packet = new PropertyPacket(URI.create("/"));
+    packet.put("test.value", "1");
+
+    Assert.assertTrue(stream.put("/", packet));
+
+    secondClone = GitUtil.clone(remote.getRepository().getDirectory());
+
+    GitUtil.modifyFile(secondClone,
+        new File(secondClone.getRepository().getDirectory().getParent() + "/default.properties"));
+    
+    packet.put("test.value2", "2");
+    Assert.assertTrue(stream.put("/", packet));
+  
+    Assert.assertEquals("test.value2=2\ntest.value=1", FileUtils.readFileToString(new File(
+        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties"),
+        "UTF-8").trim());
+
+    GitUtil.pull(secondClone);
+    
+    // Verify in fact remote got the changes by cloning it fresh
+    Assert.assertEquals("test.value2=2\ntest.value=1",
+        FileUtils.readFileToString(
+            new File(
+                secondClone.getRepository().getDirectory().getParent() + "/default.properties"),
+            "UTF-8").trim());
+
+  }
 }
