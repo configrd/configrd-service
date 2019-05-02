@@ -64,6 +64,23 @@ jobs:
           docker push $DOCKERHUB/${DOCKER_IMAGE_NAME}:${CIRCLE_SHA1:0:7}
           docker tag $DOCKERHUB/${DOCKER_IMAGE_NAME}:${CIRCLE_SHA1:0:7} $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
           docker push $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
+  s3-push:
+    docker:
+    - image: circleci/openjdk:8-jdk
+    steps:
+    - checkout
+    - restore_cache:
+       key: configrd-service-{{ .Branch }}-{{ checksum "pom.xml" }}-{{.Environment.CIRCLE_SHA1}}
+    - run:
+       name: insall awscli
+       command: |
+          sudo apt-get install awscli -y  
+    - run:
+       name: push resource to s3
+       command: |
+          export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+          export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_KEY}
+          aws s3 cp src/test/resources/ s3://config.appcrossings.net/ --recursive --metadata-directive REPLACE
 workflows:
   version: 2
   build_push:
@@ -79,3 +96,10 @@ workflows:
             - master
         requires:
         - deploy-service
+    - s3-push:
+         filters:
+            branches:
+               only:
+               - master
+         requires:
+         - docker-push
