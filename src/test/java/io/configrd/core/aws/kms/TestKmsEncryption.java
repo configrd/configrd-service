@@ -163,6 +163,45 @@ public class TestKmsEncryption {
     Assert.assertEquals("34234123123123", props.get("NOT_SECRET"));
 
   }
+  
+  @Test
+  public void testDoNotRecryptAlreadyEncryptedValue() throws Exception {
+
+	includes.add("SECRET");
+    config.put(AbstractKmsFilter.INCLUDES, includes);
+    config.put(AbstractKmsFilter.EXCLUDES, excludes);
+
+    encrypt = new KmsEncryptionRequestFilter(config);
+    decrypt = new KmsDecryptionResponseFilter(config);
+
+    props.put("SECRET", "ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)");
+    props = encrypt.apply(props);
+
+    Assert.assertNotNull(props.get("SECRET"));
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
+
+  }
+  
+  @Test
+  public void testDoNotDecryptEncryptedValueByDefault() throws Exception {
+
+    config.put(AbstractKmsFilter.INCLUDES, includes);
+    config.put(AbstractKmsFilter.EXCLUDES, excludes);
+
+    encrypt = new KmsEncryptionRequestFilter(config);
+    decrypt = new KmsDecryptionResponseFilter(config);
+
+    props.put("SECRET", "ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)");
+    props = encrypt.apply(props);
+
+    Assert.assertNotNull(props.get("SECRET"));
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
+  
+    props = decrypt.apply(props);
+
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
+
+  }
 
   @After
   public void clean() throws Exception {

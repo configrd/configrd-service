@@ -23,7 +23,7 @@ public class KmsDecryptionResponseFilter extends AbstractKmsFilter implements Re
       final Matcher m = ENC_PATTERN.matcher((String) e.getValue());
 
       if (!excPatterns.matcher(e.getKey()).find()
-          && (m.find() || incPatterns.matcher(e.getKey()).find())) {
+          && (m.find() && incPatterns.matcher(e.getKey()).find())) {
 
         String ciphertext = m.group(1);
 
