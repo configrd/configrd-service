@@ -23,13 +23,13 @@ public class KmsDecryptionResponseFilter extends AbstractKmsFilter implements Re
       final Matcher m = ENC_PATTERN.matcher((String) e.getValue());
 
       if (!excPatterns.matcher(e.getKey()).find()
-          && (m.find() || incPatterns.matcher(e.getKey()).find())) {
-
-        String ciphertext = m.group(1);
-
-        byte[] byteCipher = Base64.decodeBase64(ciphertext.getBytes(StandardCharsets.UTF_8));
+          && (m.find() && incPatterns.matcher(e.getKey()).find())) {
 
         try {
+
+          String ciphertext = m.group(1);
+
+          byte[] byteCipher = Base64.decodeBase64(ciphertext.getBytes(StandardCharsets.UTF_8));
 
           ByteBuffer ciphertextBlob = ByteBuffer.wrap(byteCipher);
           DecryptRequest req = new DecryptRequest().withCiphertextBlob(ciphertextBlob);
@@ -37,6 +37,9 @@ public class KmsDecryptionResponseFilter extends AbstractKmsFilter implements Re
           String text = StandardCharsets.UTF_8.decode(plainText).toString();
           vals.put(e.getKey(), text);
 
+        } catch (IllegalStateException ex) {
+          logger.error(
+              "Unable to match encrypted value for key " + e.getKey() + ". " + ex.getMessage());
         } catch (InvalidCiphertextException ex) {
           logger
               .error("Unable to decrypt value for property " + e.getKey() + ". " + ex.getMessage());
@@ -47,6 +50,5 @@ public class KmsDecryptionResponseFilter extends AbstractKmsFilter implements Re
 
     return vals;
   }
-
 
 }
