@@ -5,7 +5,10 @@ import java.net.URI;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
@@ -25,21 +28,28 @@ public class GitUtil {
   }
 
   public static boolean pull(Git git) throws Exception {
-    git.pull().call();
 
-    return true;
+    PullResult result = git.pull().setStrategy(MergeStrategy.RECURSIVE)
+        .setFastForward(MergeCommand.FastForwardMode.NO_FF).call();
 
+    if (result != null && result.isSuccessful()) {
+      logger.debug("Pull result " + result.getMergeResult().toString());
+      return true;
+    }else {
+      logger.error("Pull failed.");
+      return false;
+    }
   }
 
   public static File modifyFile(Git git, File file) throws Exception {
 
-    git.pull().call();
+    pull(git);
 
     URI uri = URI.create(git.getRepository().getDirectory().getParent())
         .relativize(URI.create(file.getAbsolutePath()));
 
-    FileUtils.writeStringToFile(file, loremIpsum, "UTF-8");
-    DirCache cache = git.add().addFilepattern(uri.toString()).call();
+    FileUtils.writeStringToFile(file, loremIpsum, "UTF-8", false);
+    DirCache cache = git.add().addFilepattern(".").call();
 
     for (int i = 0; i < cache.getEntryCount(); i++) {
       logger.debug("Added " + cache.getEntry(i));
@@ -47,11 +57,11 @@ public class GitUtil {
 
     RevCommit commit = git.commit().setMessage("Modifying file " + uri).call();
 
-    logger.info(commit.getFullMessage());
-
-    Iterable<PushResult> results = git.push().call();
+    Iterable<PushResult> results = git.push().setForce(true).call();
 
     for (PushResult r : results) {
+      
+      logger.debug(r.getMessages());
 
       if (r.getRemoteUpdates().stream()
           .allMatch(s -> (RemoteRefUpdate.Status.OK.equals(s.getStatus())
@@ -112,7 +122,7 @@ public class GitUtil {
 
   public static void cleanup(Git git) {
     if (git != null) {
-      FileUtils.deleteQuietly(git.getRepository().getDirectory());
+      FileUtils.deleteQuietly(git.getRepository().getDirectory().getParentFile());
     }
   }
 

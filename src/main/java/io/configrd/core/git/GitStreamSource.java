@@ -12,7 +12,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
@@ -28,6 +27,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
+import org.eclipse.jgit.lib.SubmoduleConfig.FetchRecurseSubmodulesMode;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
@@ -94,13 +94,15 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
     gitConnect();
 
-    if (!packet.isEmpty()) {
-      final String fileName = write(packet);
-      DirCache c = gitAdd(packet);
-      RevCommit commit = gitCommit("Updated " + packet.size() + " entries.");
-      return gitPush(commit);
-    } else {
-      logger.warn("Packet to write to " + packet.getUri() + " is empty. Nothing changed.");
+    synchronized (git) {
+      if (!packet.isEmpty() && gitPull()) {
+        final String fileName = write(packet);
+        DirCache c = gitAdd(packet);
+        RevCommit commit = gitCommit("Updated " + packet.size() + " entries.");
+        return gitPush(commit);
+      } else {
+        logger.warn("Packet to write to " + packet.getUri() + " is empty. Nothing changed.");
+      }
     }
 
     return false;
@@ -129,58 +131,54 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
     boolean success = true;
 
-    if (gitPull()) {
+    RefSpec spec = null;
+    try {
 
-      RefSpec spec = null;
-      try {
+      spec = new RefSpec(commit.name() + ":" + git.getRepository().getFullBranch());
 
-        spec = new RefSpec(commit.name() + ":" + git.getRepository().getFullBranch());
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
 
-      } catch (Exception e) {
-        throw new IllegalStateException(e);
+    //Goal is to overwrite remote with local state, it's a PUT
+    PushCommand push = git.push().setForce(true).setRefSpecs(spec);
+
+    logger.debug("Pushing " + spec);
+
+    setupCredentials(repoDef.toURIish().getScheme(), push);
+
+    try {
+
+      Iterable<PushResult> result = push.call();
+
+      Set<String> messages = new HashSet<>();
+
+      for (PushResult r : result) {
+
+        success = success && r.getRemoteUpdates().stream()
+            .allMatch(s -> (RemoteRefUpdate.Status.OK.equals(s.getStatus())
+                || RemoteRefUpdate.Status.UP_TO_DATE.equals(s.getStatus())));
+
+        if (!success) {
+          messages.addAll(r.getRemoteUpdates().stream()
+              .filter(u -> !StringUtils.hasText(u.getMessage())).map(u -> {
+                return u.getStatus() + " - " + u.getMessage();
+              }).collect(Collectors.toSet()));
+        }
       }
 
-      PushCommand push = git.push().setRefSpecs(spec);
-
-      logger.debug("Pushing " + spec);
-
-      setupCredentials(repoDef.toURIish().getScheme(), push);
-
-      try {
-
-        Iterable<PushResult> result = push.call();
-
-        Set<String> messages = new HashSet<>();
-
-        for (PushResult r : result) {
-
-          success = success && r.getRemoteUpdates().stream()
-              .allMatch(s -> (RemoteRefUpdate.Status.OK.equals(s.getStatus())
-                  || RemoteRefUpdate.Status.UP_TO_DATE.equals(s.getStatus())));
-
-          if (!success) {
-            messages.addAll(r.getRemoteUpdates().stream()
-                .filter(u -> StringUtils.hasText(u.getMessage())).map(u -> {
-                  return u.getStatus() + " - " + u.getMessage();
-                }).collect(Collectors.toSet()));
-          }
+      if (!messages.isEmpty()) {
+        logger.error("Push of ref spec " + spec + " failed.");
+        for (String s : messages) {
+          logger.error(s);
         }
-
-        if (!messages.isEmpty()) {
-          logger.error("Push of ref spec " + spec + " failed.");
-          for (String s : messages) {
-            logger.error(s);
-          }
-        } else {
-          success = true;
-          logger.info("Push " + spec + " succeeded.");
-        }
-
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      } else {
+        success = true;
+        logger.info("Push " + spec + " succeeded.");
       }
-    } else {
-      success = false;
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     return success;
@@ -253,8 +251,7 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
 
     try {
       logger.debug("Adding " + fileName);
-      AddCommand add = git.add().addFilepattern(fileName.toString());
-      DirCache cache = add.call();
+      DirCache cache = git.add().addFilepattern(".").call();
 
       for (int i = 0; i < cache.getEntryCount(); i++) {
         logger.debug("Added " + cache.getEntry(i));
@@ -367,19 +364,20 @@ public class GitStreamSource implements StreamSource, FileStreamSource {
       PullResult pullRes = pc.call();
       rr = pullRes.getMergeResult();
 
+      if (rr != null && rr.getMergeStatus().isSuccessful()) {
+        result = Boolean.TRUE;
+        logger.debug(rr.toString());
+      } else if (rr != null) {
+        logger.error("Merge on pull failed with " + rr.toString());
+      }
+
+
     } catch (Exception e) {
       logger.error(e.getMessage());
 
       if (e.getMessage().toLowerCase().contains(("ref may not exist"))) {
         result = true;
       }
-    }
-
-    if (rr != null && (MergeResult.MergeStatus.MERGED.equals(rr.getMergeStatus())
-        || MergeResult.MergeStatus.FAST_FORWARD.equals(rr.getMergeStatus())
-        || MergeResult.MergeStatus.ALREADY_UP_TO_DATE.equals(rr.getMergeStatus()))) {
-      result = Boolean.TRUE;
-      logger.debug("Pull of " + repoDef.getUri() + " completed");
     }
 
     return result;
