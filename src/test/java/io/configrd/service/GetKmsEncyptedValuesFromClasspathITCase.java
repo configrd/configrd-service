@@ -69,7 +69,9 @@ public class GetKmsEncyptedValuesFromClasspathITCase {
     Assert.assertEquals(
         "ENC(AQICAHgXaEZrD2fRF6NHtVTvoykgmuYYyhsFoqth8Xajiwl7mgFPHO7UxnfVlr/uKB+RCc6WAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMOfKkPfghgateoRBIAgEQgCB1lJhrNbC+lilFjx/4BXDjj2wmMncHJjw9oDtfSnfYaQ==)",
         props.getProperty("kms.not_secret"));
-    Assert.assertEquals("hello", props.getProperty("kms.encrypted"));
+    Assert.assertEquals(
+        "ENC(AQICAHgXaEZrD2fRF6NHtVTvoykgmuYYyhsFoqth8Xajiwl7mgFPHO7UxnfVlr/uKB+RCc6WAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMOfKkPfghgateoRBIAgEQgCB1lJhrNbC+lilFjx/4BXDjj2wmMncHJjw9oDtfSnfYaQ==)",
+        props.getProperty("kms.encrypted"));
 
   }
 

@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public abstract class AbstractTestSuiteITCase {
+public abstract class AbstractGetTCase {
   
   protected Client client;
   protected WebTarget target;

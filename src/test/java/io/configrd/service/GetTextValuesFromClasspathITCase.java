@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import io.configrd.core.source.RepoDef;
 
 
-public class GetTextValuesFromClasspathITCase extends AbstractTestSuiteITCase {
+public class GetTextValuesFromClasspathITCase extends AbstractGetTCase {
 
   private static final Logger logger =
       LoggerFactory.getLogger(GetTextValuesFromClasspathITCase.class);

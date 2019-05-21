@@ -1,9 +1,7 @@
 package io.configrd.service;
 
 import java.io.File;
-import java.io.StringReader;
 import java.util.Map;
-import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -16,14 +14,13 @@ import io.configrd.core.git.GitRepoDef;
 import io.configrd.core.git.GitStreamSource;
 import io.configrd.core.source.RepoDef;
 
+public class PutTextValesToGitITCase extends AbstractPutITCase {
 
-public class GetTextValuesFromGitITCase extends AbstractGetTCase {
-
-  private static final Logger logger = LoggerFactory.getLogger(GetTextValuesFromGitITCase.class);
+  private static final Logger logger = LoggerFactory.getLogger(PutTextValesToGitITCase.class);
 
   private static String awsCodeCommitGitUser = System.getProperty("aws.codecommit.git.user");
   private static String awsCodeCommitGitSecret = System.getProperty("aws.codecommit.git.secret");
-
+  
   @BeforeClass
   public static void setup() throws Throwable {
 
@@ -38,10 +35,10 @@ public class GetTextValuesFromGitITCase extends AbstractGetTCase {
         "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
     init.put(RepoDef.SOURCE_NAME_FIELD, GitStreamSource.GIT);
     init.put(RepoDef.CONFIGRD_CONFIG_FILENAME_FIELD, "git-repos.yaml");
-    init.put(GitRepoDef.LOCAL_CLONE_FIELD, "/srv/configrd/git-tests");
+    init.put(GitRepoDef.LOCAL_CLONE_FIELD, "/srv/configrd/");
 
     TestConfigServer.serverStart(init);
-    logger.info("Running " + GetTextValuesFromGitITCase.class.getName());
+    logger.info("Running " + PutTextValesToGitITCase.class.getName());
 
   }
 
@@ -53,18 +50,11 @@ public class GetTextValuesFromGitITCase extends AbstractGetTCase {
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = MediaType.TEXT_PLAIN_TYPE;
   }
-
-  @Override
-  public Properties convert(String body) throws Exception {
-    Properties props = new Properties();
-    props.load(new StringReader(body));
-    return props;
-  }
   
   @AfterClass
   public static void teardown() throws Exception {
-    FileUtils.forceDelete(new File("/srv/configrd/git-tests"));
+    FileUtils.forceDelete(new File("/srv/configrd/"));
     TestConfigServer.serverStop();
   }
-
+  
 }

@@ -11,11 +11,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import io.configrd.core.aws.s3.S3StreamSource;
 
 public class TestGitAuthentication {
 
-  GitStreamSource stream;
+  GitConfigSource configSource;
   GitConfigSourceFactory factory = new GitConfigSourceFactory();
 
   private String awsCodeCommitGitUser = System.getProperty("aws.codecommit.git.user");
@@ -32,8 +31,8 @@ public class TestGitAuthentication {
 
   private final static String localClone = "/tmp/configrd/test";
   private Map<String, Object> vals;
-  
-  
+
+
   @Before
   public void setup() {
     vals = new HashMap<>();
@@ -48,9 +47,9 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.PASSWORD_FIELD, awsCodeCommitGitSecret);
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.CodeCommitGitCreds.name());
     vals.put(GitRepoDef.URI_FIELD,
-        "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");    
+        "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 
@@ -63,7 +62,7 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.URI_FIELD,
         "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 
@@ -75,7 +74,7 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.URI_FIELD, "ssh://" + awsCodeCommitSshId
         + "@git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 
@@ -86,7 +85,7 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.SshPubKey.name());
     vals.put(GitRepoDef.URI_FIELD, "git@github.com:kkarski/configrd-demo.git");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 
@@ -99,7 +98,7 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.GitHub.name());
     vals.put(GitRepoDef.URI_FIELD, "https://github.com/kkarski/configrd-demo.git");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 
@@ -110,7 +109,7 @@ public class TestGitAuthentication {
     vals.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.GitHubToken.name());
     vals.put(GitRepoDef.URI_FIELD, "https://github.com/kkarski/configrd-demo.git");
 
-    stream = (GitStreamSource) factory.newStreamSource("TestCodeCommitAuthentication", vals);
+    configSource = factory.newConfigSource("TestCodeCommitAuthentication", vals);
 
   }
 

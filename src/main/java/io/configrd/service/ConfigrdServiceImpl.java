@@ -171,6 +171,9 @@ public class ConfigrdServiceImpl implements ConfigrdService {
       return Response.status(Status.BAD_REQUEST).build();
     }
 
+    if (!StringUtils.hasText(repo))
+      repo = ConfigSourceResolver.DEFAULT_REPO_NAME;
+    
     if (!StringUtils.hasText(path))
       path = "/";
 

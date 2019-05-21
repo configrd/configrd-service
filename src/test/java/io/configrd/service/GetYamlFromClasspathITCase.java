@@ -14,7 +14,7 @@ import io.configrd.core.processor.YamlProcessor;
 import io.configrd.core.source.RepoDef;
 
 
-public class GetYamlFromClasspathITCase extends AbstractTestSuiteITCase {
+public class GetYamlFromClasspathITCase extends AbstractGetTCase {
 
   private static final Logger logger = LoggerFactory.getLogger(GetYamlFromClasspathITCase.class);
 

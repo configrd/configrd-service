@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.configrd.core.source.RepoDef;
 
-public class GetTextValuesFromS3PathITCase extends AbstractTestSuiteITCase {
+public class GetTextValuesFromS3PathITCase extends AbstractGetTCase {
 
   private static final Logger logger = LoggerFactory.getLogger(GetTextValuesFromS3PathITCase.class);
 

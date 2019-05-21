@@ -1,20 +1,18 @@
 package io.configrd.core.git;
 
 import java.io.File;
-import java.net.URI;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import io.configrd.core.source.PropertyPacket;
 
 public class TestGitStreamSourceGet {
 
-  GitStreamSource stream;
+  GitConfigSource stream;
   GitConfigSourceFactory factory = new GitConfigSourceFactory();
   private final static String localClone = "/tmp/configrd/test";
 
@@ -36,12 +34,12 @@ public class TestGitStreamSourceGet {
   @Test
   public void testGetValues() throws Exception {
 
-    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
+    stream = factory.newConfigSource("TestGitStreamSource", vals);
 
     final String key = "env/dev/custom/default.properties";
 
-    Optional<? extends PropertyPacket> packet = stream.stream(key);
-    Assert.assertTrue(packet.isPresent());
+    Map<String, Object> packet = stream.get(key, new HashSet<>());
+    Assert.assertFalse(packet.isEmpty());
 
   }
 
@@ -50,14 +48,14 @@ public class TestGitStreamSourceGet {
 
     vals.put(GitRepoDef.REFRESH_FIELD, 5);
 
-    stream = (GitStreamSource) factory.newStreamSource("TestGitStreamSource", vals);
+    stream = factory.newConfigSource("TestGitStreamSource", vals);
 
     Thread.sleep(12000);
 
     final String key = "env/dev/custom/default.properties";
 
-    Optional<? extends PropertyPacket> packet = stream.stream(key);
-    Assert.assertTrue(packet.isPresent());
+    Map<String, Object> packet = stream.get(key, new HashSet<>());
+    Assert.assertFalse(packet.isEmpty());
 
   }
 

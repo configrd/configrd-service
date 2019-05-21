@@ -21,7 +21,7 @@ public class TestGitStreamSourcePut {
   Git secondClone;
   Git remote;
 
-  GitStreamSource stream;
+  GitConfigSource stream;
   GitConfigSourceFactory factory = new GitConfigSourceFactory();
   private Map<String, Object> vals = new HashMap<>();
 
@@ -36,14 +36,14 @@ public class TestGitStreamSourcePut {
     vals.put(GitRepoDef.SOURCE_NAME_FIELD, GitStreamSource.GIT);
     vals.put(GitRepoDef.FILE_NAME_FIELD, "default.properties");
 
-    stream = (GitStreamSource) factory.newStreamSource(getClass().getSimpleName(), vals);
+    stream = factory.newConfigSource(getClass().getSimpleName(), vals);
   }
 
   @After
   public void cleanup() throws Exception {
-//    localClone.delete();
-//    GitUtil.cleanup(secondClone);
-//    GitUtil.cleanup(remote);
+    // localClone.delete();
+    // GitUtil.cleanup(secondClone);
+    // GitUtil.cleanup(remote);
   }
 
   @Test
@@ -52,15 +52,16 @@ public class TestGitStreamSourcePut {
     PropertyPacket packet = new PropertyPacket(URI.create("/"));
     packet.put("test.value", "1");
 
-    Assert.assertFalse(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties")
-            .exists());
+    Assert.assertFalse(new File(localClone.getRoot() + "/"
+        + stream.getStreamSource().getSourceConfig().getName() + "/default.properties").exists());
 
     Assert.assertTrue(stream.put("/", packet));
 
-    Assert.assertEquals("test.value=1", FileUtils.readFileToString(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties"),
-        "UTF-8").trim());
+    Assert.assertEquals("test.value=1",
+        FileUtils.readFileToString(
+            new File(localClone.getRoot() + "/"
+                + stream.getStreamSource().getSourceConfig().getName() + "/default.properties"),
+            "UTF-8").trim());
 
     secondClone = GitUtil.clone(remote.getRepository().getDirectory());
 
@@ -79,16 +80,16 @@ public class TestGitStreamSourcePut {
     PropertyPacket packet = new PropertyPacket(URI.create("/samples"));
     packet.put("test.value", "1");
 
-    Assert.assertFalse(new File(localClone.getRoot() + "/" + stream.getSourceConfig().getName()
-        + "/samples/default.properties").exists());
+    Assert.assertFalse(
+        new File(localClone.getRoot() + "/" + stream.getStreamSource().getSourceConfig().getName()
+            + "/samples/default.properties").exists());
 
     Assert.assertTrue(stream.put("/samples", packet));
 
     Assert.assertEquals("test.value=1",
-        FileUtils
-            .readFileToString(new File(localClone.getRoot() + "/"
-                + stream.getSourceConfig().getName() + "/samples/default.properties"), "UTF-8")
-            .trim());
+        FileUtils.readFileToString(new File(localClone.getRoot() + "/"
+            + stream.getStreamSource().getSourceConfig().getName() + "/samples/default.properties"),
+            "UTF-8").trim());
 
     secondClone = GitUtil.clone(remote.getRepository().getDirectory());
 
@@ -104,15 +105,13 @@ public class TestGitStreamSourcePut {
 
     PropertyPacket packet = new PropertyPacket(URI.create("/"));
 
-    Assert.assertFalse(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties")
-            .exists());
+    Assert.assertFalse(new File(localClone.getRoot() + "/"
+        + stream.getStreamSource().getSourceConfig().getName() + "/default.properties").exists());
 
     Assert.assertFalse(stream.put("/", packet));
 
-    Assert.assertFalse(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties")
-            .exists());
+    Assert.assertFalse(new File(localClone.getRoot() + "/"
+        + stream.getStreamSource().getSourceConfig().getName() + "/default.properties").exists());
 
   }
 
@@ -125,10 +124,9 @@ public class TestGitStreamSourcePut {
     Assert.assertTrue(stream.put("/samples", packet));
 
     Assert.assertEquals("test.value=1",
-        FileUtils
-            .readFileToString(new File(localClone.getRoot() + "/"
-                + stream.getSourceConfig().getName() + "/samples/default.properties"), "UTF-8")
-            .trim());
+        FileUtils.readFileToString(new File(localClone.getRoot() + "/"
+            + stream.getStreamSource().getSourceConfig().getName() + "/samples/default.properties"),
+            "UTF-8").trim());
 
     packet = new PropertyPacket(URI.create("/samples"));
     packet.put("test.value", "2");
@@ -136,10 +134,9 @@ public class TestGitStreamSourcePut {
     Assert.assertTrue(stream.put("/samples", packet));
 
     Assert.assertEquals("test.value=2",
-        FileUtils
-            .readFileToString(new File(localClone.getRoot() + "/"
-                + stream.getSourceConfig().getName() + "/samples/default.properties"), "UTF-8")
-            .trim());
+        FileUtils.readFileToString(new File(localClone.getRoot() + "/"
+            + stream.getStreamSource().getSourceConfig().getName() + "/samples/default.properties"),
+            "UTF-8").trim());
 
     secondClone = GitUtil.clone(remote.getRepository().getDirectory());
 
@@ -158,17 +155,15 @@ public class TestGitStreamSourcePut {
     PropertyPacket packet = new PropertyPacket(URI.create("/default.json"));
     packet.put("test.value", "1");
 
-    Assert.assertFalse(
-        new File(localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.json")
-            .exists());
+    Assert.assertFalse(new File(localClone.getRoot() + "/"
+        + stream.getStreamSource().getSourceConfig().getName() + "/default.json").exists());
 
     Assert.assertTrue(stream.put("/", packet));
 
-    Assert
-        .assertEquals("{\"test.value\":\"1\"}",
-            FileUtils.readFileToString(new File(
-                localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.json"),
-                "UTF-8").trim());
+    Assert.assertEquals("{\"test.value\":\"1\"}", FileUtils
+        .readFileToString(new File(localClone.getRoot() + "/"
+            + stream.getStreamSource().getSourceConfig().getName() + "/default.json"), "UTF-8")
+        .trim());
 
     secondClone = GitUtil.clone(remote.getRepository().getDirectory());
 
@@ -197,9 +192,11 @@ public class TestGitStreamSourcePut {
 
     GitUtil.pull(secondClone);
 
-    Assert.assertEquals("test.value2=2\ntest.value=1", FileUtils.readFileToString(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties"),
-        "UTF-8").trim());
+    Assert.assertEquals("test.value2=2\ntest.value=1",
+        FileUtils.readFileToString(
+            new File(localClone.getRoot() + "/"
+                + stream.getStreamSource().getSourceConfig().getName() + "/default.properties"),
+            "UTF-8").trim());
 
     // Verify in fact remote got the changes by cloning it fresh
     Assert.assertEquals("test.value2=2\ntest.value=1",
@@ -222,16 +219,18 @@ public class TestGitStreamSourcePut {
 
     GitUtil.modifyFile(secondClone,
         new File(secondClone.getRepository().getDirectory().getParent() + "/default.properties"));
-    
+
     packet.put("test.value2", "2");
     Assert.assertTrue(stream.put("/", packet));
-  
-    Assert.assertEquals("test.value2=2\ntest.value=1", FileUtils.readFileToString(new File(
-        localClone.getRoot() + "/" + stream.getSourceConfig().getName() + "/default.properties"),
-        "UTF-8").trim());
+
+    Assert.assertEquals("test.value2=2\ntest.value=1",
+        FileUtils.readFileToString(
+            new File(localClone.getRoot() + "/"
+                + stream.getStreamSource().getSourceConfig().getName() + "/default.properties"),
+            "UTF-8").trim());
 
     GitUtil.pull(secondClone);
-    
+
     // Verify in fact remote got the changes by cloning it fresh
     Assert.assertEquals("test.value2=2\ntest.value=1",
         FileUtils.readFileToString(

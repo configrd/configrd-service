@@ -12,12 +12,6 @@ public class GitConfigSourceFactory implements ConfigSourceFactory<GitConfigSour
 
   @Override
   public GitConfigSource newConfigSource(String name, Map<String, Object> values) {
-    GitStreamSource source = newStreamSource(name, values);
-    GitConfigSource configSource = new GitConfigSource(source, values);
-    return configSource;
-  }
-
-  public GitStreamSource newStreamSource(String name, Map<String, Object> values) {
 
     GitRepoDef def = new GitRepoDef(name, values);
 
@@ -57,7 +51,16 @@ public class GitConfigSourceFactory implements ConfigSourceFactory<GitConfigSour
 
     }
 
-    GitStreamSource source = new GitStreamSource(def, creds);
+    GitStreamSource source = newStreamSource(name, def);
+    GitConfigSource configSource = new GitConfigSource(source, values, creds);
+    configSource.init();
+
+    return configSource;
+  }
+
+  public GitStreamSource newStreamSource(String name, GitRepoDef def) {
+
+    GitStreamSource source = new GitStreamSource(def);
     source.init();
 
     return source;

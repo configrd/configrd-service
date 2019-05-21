@@ -14,7 +14,7 @@ import com.jsoniter.spi.TypeLiteral;
 import io.configrd.core.processor.PropertiesProcessor;
 import io.configrd.core.source.RepoDef;
 
-public class GetJsonFromClasspathITCase extends AbstractTestSuiteITCase {
+public class GetJsonFromClasspathITCase extends AbstractGetTCase {
 
   private static final Logger logger = LoggerFactory.getLogger(GetJsonFromClasspathITCase.class);
 
