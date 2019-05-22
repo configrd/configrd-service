@@ -13,3 +13,6 @@
 /aws.zip
 /v2.3.zip
 /.metadata/
+/RemoteSystemsTempFiles/
+/.project
+/.classpath
