@@ -1,41 +1,42 @@
 package io.configrd.service;
 
 import java.io.File;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.Git;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.configrd.core.git.GitRepoDef;
 import io.configrd.core.git.GitStreamSource;
+import io.configrd.core.git.GitUtil;
 import io.configrd.core.source.RepoDef;
+import io.configrd.core.util.TemplateReplace;
 
 public class PutTextValesToGitITCase extends AbstractPutITCase {
 
   private static final Logger logger = LoggerFactory.getLogger(PutTextValesToGitITCase.class);
 
-  private static String awsCodeCommitGitUser = System.getProperty("aws.codecommit.git.user");
-  private static String awsCodeCommitGitSecret = System.getProperty("aws.codecommit.git.secret");
-  
+  private static Git remote;
+  private static TemplateReplace template = new TemplateReplace();
+
   @BeforeClass
   public static void setup() throws Throwable {
 
-    Assert.assertNotNull(awsCodeCommitGitUser);
-    Assert.assertNotNull(awsCodeCommitGitSecret);
+    remote = GitUtil.initBare();
+
+    Map<String, Object> replace = new HashMap<>();
+    replace.put("URI", remote.getRepository().getDirectory().toString());
+
+    String tempFile = template.replace("classpath:/git-write-repo.yaml", replace);
 
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(GitRepoDef.USERNAME_FIELD, awsCodeCommitGitUser);
-    init.put(GitRepoDef.PASSWORD_FIELD, awsCodeCommitGitSecret);
-    init.put(GitRepoDef.AUTH_METHOD_FIELD, GitRepoDef.AuthMethod.CodeCommitGitCreds.name());
-    init.put(RepoDef.URI_FIELD,
-        "https://git-codecommit.us-west-2.amazonaws.com/v1/repos/configrd-test");
-    init.put(RepoDef.SOURCE_NAME_FIELD, GitStreamSource.GIT);
-    init.put(RepoDef.CONFIGRD_CONFIG_FILENAME_FIELD, "git-repos.yaml");
-    init.put(GitRepoDef.LOCAL_CLONE_FIELD, "/srv/configrd/");
+    init.put(RepoDef.URI_FIELD, "file:" + URI.create(tempFile));
+    init.put(RepoDef.SOURCE_NAME_FIELD, GitStreamSource.FILE_SYSTEM);
 
     TestConfigServer.serverStart(init);
     logger.info("Running " + PutTextValesToGitITCase.class.getName());
@@ -50,11 +51,11 @@ public class PutTextValesToGitITCase extends AbstractPutITCase {
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = MediaType.TEXT_PLAIN_TYPE;
   }
-  
+
   @AfterClass
   public static void teardown() throws Exception {
     FileUtils.forceDelete(new File("/srv/configrd/"));
     TestConfigServer.serverStop();
   }
-  
+
 }

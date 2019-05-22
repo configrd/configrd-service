@@ -1,0 +1,8 @@
+service:
+  defaults:
+    fileName: default.properties
+    localClone: /srv/configrd
+    sourceName: git
+  repos:
+    default:
+      uri: ${URI}

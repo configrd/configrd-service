@@ -22,7 +22,7 @@ public class GitRepoDef extends DefaultRepoDef
   public static final String LOCAL_CLONE_FIELD = "localClone";
 
   public static final String REFRESH_FIELD = "refresh";
-  
+
   public static final String ROOT_DIR_FIELD = "rootDir";
 
   private String authMethod;
@@ -36,7 +36,7 @@ public class GitRepoDef extends DefaultRepoDef
   private String localClone;
 
   private String branchName;
-  
+
   private String rootDir;
 
   private Integer refresh = Integer.valueOf(0);
@@ -194,7 +194,8 @@ public class GitRepoDef extends DefaultRepoDef
         && (getAuthMethod().equals(AuthMethod.CodeCommitGitCreds.name())
             || getAuthMethod().equals(AuthMethod.CodeCommitIAMUser.name())
             || getAuthMethod().equals(AuthMethod.GitHub.name()))
-        && (!StringUtils.hasText(getUsername()) || !StringUtils.hasText(getPassword()))) {
+        && (!StringUtils.hasText(getUsername()) || getUsername().trim().startsWith("${")
+            || !StringUtils.hasText(getPassword()) || getPassword().trim().startsWith("${"))) {
 
       err.add("Username and password must be configured");
 

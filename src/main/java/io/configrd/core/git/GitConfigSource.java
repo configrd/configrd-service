@@ -253,10 +253,12 @@ public class GitConfigSource extends DefaultConfigSource<GitStreamSource>
       }
 
     } catch (InvalidRemoteException e2) {
+   
       throw new IllegalArgumentException(e2);
+   
     } catch (GitAPIException e3) {
+    
       throw new InitializationException(e3.getMessage());
-
 
     }
     return true;
