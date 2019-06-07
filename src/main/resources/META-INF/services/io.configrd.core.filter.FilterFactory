@@ -1,1 +1,2 @@
 io.configrd.core.aws.kms.KmsEncryptionFilterFactory
+io.configrd.core.jce.PBEEncryptionFilterFactory

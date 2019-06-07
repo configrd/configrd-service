@@ -1,4 +1,4 @@
-package io.configrd.core.aws.kms;
+package io.configrd.core.jce;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,17 +8,14 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import io.configrd.core.jce.BasePBE;
-import io.configrd.core.jce.PBEDecryptionResponseFilter;
-import io.configrd.core.jce.PBEEncryptionRequestFilter;
+import io.configrd.core.filter.RequestFilter;
+import io.configrd.core.filter.ResponseFilter;
 
-public class TestKmsEncryption {
+public class TestPBEEncryption {
 
-  private KmsEncryptionRequestFilter encrypt;
-  private KmsDecryptionResponseFilter decrypt;
+  private RequestFilter encrypt;
+  private ResponseFilter decrypt;
 
-  private String accessKey = System.getProperty("aws.accessKeyId");
-  private String secretKey = System.getProperty("aws.secretKey");
   private Map<String, Object> props = new HashMap<>();
   private Map<String, Object> config;
   private List<String> includes = new ArrayList<>();
@@ -28,19 +25,15 @@ public class TestKmsEncryption {
   public void setup() throws Exception {
 
     config = new HashMap<>();
-    config.put(AbstractKmsFilter.AWS_ACCESS_KEY_ID, accessKey);
-    config.put(AbstractKmsFilter.AWS_SECRET_ACCESS_KEY, secretKey);
-    config.put(AbstractKmsFilter.AWS_DEFAULT_REGION, "us-west-2");
-    config.put(AbstractKmsFilter.AWS_KEY_ID,
-        "arn:aws:kms:us-west-2:693832995906:key/c5bcaa29-a000-4162-8805-d98b6621a228");
+    config.put(BasePBE.PASSWORD, "secret");
 
   }
 
   @Test
   public void testEncryptNoValueWithoutPatterns() throws Exception {
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "123434324");
     props = encrypt.apply(props);
@@ -58,10 +51,10 @@ public class TestKmsEncryption {
   public void testEncryptOneValue() throws Exception {
 
     includes.add("SECRET");
-    config.put(AbstractKmsFilter.INCLUDES, includes);
+    config.put(BasePBE.INCLUDES, includes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "123434324");
     props = encrypt.apply(props);
@@ -82,12 +75,12 @@ public class TestKmsEncryption {
   public void testEncryptOneValueOfTwo() throws Exception {
 
     includes.add("SECRET");
-    config.put(AbstractKmsFilter.INCLUDES, includes);
+    config.put(BasePBE.INCLUDES, includes);
     excludes.add("NOT_SECRET");
-    config.put(AbstractKmsFilter.EXCLUDES, excludes);
-    
-    decrypt = new KmsDecryptionResponseFilter(config);
-    encrypt = new KmsEncryptionRequestFilter(config);
+    config.put(BasePBE.EXCLUDES, excludes);
+
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "123434324");
     props.put("NOT_SECRET", "34234123123123");
@@ -111,10 +104,10 @@ public class TestKmsEncryption {
 
     includes.add("SECRET");
     includes.add("NOT_SECRET");
-    config.put(AbstractKmsFilter.INCLUDES, includes);
+    config.put(BasePBE.INCLUDES, includes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "123434324");
     props.put("NOT_SECRET", "34234123123123");
@@ -146,11 +139,11 @@ public class TestKmsEncryption {
 
     includes.add("SECRET");
     excludes.add("SECRET");
-    config.put(AbstractKmsFilter.INCLUDES, includes);
-    config.put(AbstractKmsFilter.EXCLUDES, excludes);
+    config.put(BasePBE.INCLUDES, includes);
+    config.put(BasePBE.EXCLUDES, excludes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "123434324");
     props.put("NOT_SECRET", "34234123123123");
@@ -166,46 +159,49 @@ public class TestKmsEncryption {
     Assert.assertEquals("34234123123123", props.get("NOT_SECRET"));
 
   }
-  
+
   @Test
   public void testDoNotRecryptAlreadyEncryptedValue() throws Exception {
 
-	includes.add("SECRET");
-    config.put(AbstractKmsFilter.INCLUDES, includes);
-    config.put(AbstractKmsFilter.EXCLUDES, excludes);
+    includes.add("SECRET");
+    config.put(BasePBE.INCLUDES, includes);
+    config.put(BasePBE.EXCLUDES, excludes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)");
     props = encrypt.apply(props);
 
     Assert.assertNotNull(props.get("SECRET"));
-    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)",
+        props.get("SECRET"));
 
   }
-  
+
   @Test
   public void testDoNotDecryptEncryptedValueByDefault() throws Exception {
 
-    config.put(AbstractKmsFilter.INCLUDES, includes);
-    config.put(AbstractKmsFilter.EXCLUDES, excludes);
+    config.put(BasePBE.INCLUDES, includes);
+    config.put(BasePBE.EXCLUDES, excludes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)");
     props = encrypt.apply(props);
 
     Assert.assertNotNull(props.get("SECRET"));
-    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
-  
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)",
+        props.get("SECRET"));
+
     props = decrypt.apply(props);
 
-    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)", props.get("SECRET"));
+    Assert.assertEquals("ENC(239029urwfjslkdfn2l34u2093u0[9fujwkfwelk==fj20394u023udwslkf)",
+        props.get("SECRET"));
 
   }
-  
+
   @Test
   public void testDoNotDecryptPlainTextValue() throws Exception {
 
@@ -213,8 +209,8 @@ public class TestKmsEncryption {
     config.put(BasePBE.INCLUDES, includes);
     config.put(BasePBE.EXCLUDES, excludes);
 
-    encrypt = new KmsEncryptionRequestFilter(config);
-    decrypt = new KmsDecryptionResponseFilter(config);
+    encrypt = new PBEEncryptionRequestFilter(config);
+    decrypt = new PBEDecryptionResponseFilter(config);
 
     props.put("SECRET", "hello");
     props = decrypt.apply(props);
@@ -223,6 +219,19 @@ public class TestKmsEncryption {
 
   }
 
+  @Test
+  public void testPrint() throws Exception {
+    
+    config.put(BasePBE.INCLUDES, includes);
+    config.put(BasePBE.EXCLUDES, excludes);
+
+    encrypt = new PBEEncryptionRequestFilter(config);
+    
+    System.out.println(((PBEEncryptionRequestFilter)encrypt).encrypt("hello"));
+    
+    
+  }
+  
   @After
   public void clean() throws Exception {
     props.clear();

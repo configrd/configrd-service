@@ -49,12 +49,6 @@ public class GetJsonFromClasspathITCase extends AbstractGetTCase {
     super.testGetPropertiesFromJsonFile();
   }
 
-  @Test
-  @Override
-  public void testGetPropertiesFromYamlFile() throws Exception {
-    super.testGetPropertiesFromYamlFile();
-  }
-
   @Override
   public Properties convert(String body) throws Exception {
 

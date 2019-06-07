@@ -7,7 +7,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -203,15 +202,15 @@ public class ConfigrdServer {
       deploymentManager.deploy();
 
       try {
-        
+
         path.addPrefixPath("/", deploymentManager.start());
         logger.info("Application deployed");
-        
+
       } catch (Exception e) {
         Throwable ex = Throwables.getRootCause(e);
         logger.error(ex.getMessage());
         throw ex;
-      }     
+      }
     }
     logger.info("Configrd started in " + (System.currentTimeMillis() - start) / 1000 + "s");
 

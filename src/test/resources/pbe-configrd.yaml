@@ -1,0 +1,16 @@
+service:
+  defaults:
+    fileName: default.properties
+    hostsName: hosts.properties
+    sourceName: file
+  repos:
+    pbe:
+      uri: classpath:/
+      encrypt:
+         pbe:
+            password: secret
+            include:
+               - (?i)SECRET
+               - (?i)property\.6\.name
+            exclude:
+               - (?i)NOT_SECRET

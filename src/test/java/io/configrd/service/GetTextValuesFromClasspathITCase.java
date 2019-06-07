@@ -1,10 +1,10 @@
 package io.configrd.service;
 
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,18 +45,6 @@ public class GetTextValuesFromClasspathITCase extends AbstractGetTCase {
     target = client.target("http://localhost:8891/configrd/v1/");
     content = MediaType.TEXT_PLAIN_TYPE;
     accept = MediaType.TEXT_PLAIN_TYPE;
-  }
-
-  @Test
-  @Override
-  public void testGetPropertiesFromJsonFile() throws Exception {
-    super.testGetPropertiesFromJsonFile();
-  }
-
-  @Test
-  @Override
-  public void testGetPropertiesFromYamlFile() throws Exception {
-    super.testGetPropertiesFromYamlFile();
   }
 
   @Override

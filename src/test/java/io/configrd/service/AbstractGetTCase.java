@@ -11,12 +11,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public abstract class AbstractGetTCase {
-  
+
   protected Client client;
   protected WebTarget target;
   protected MediaType content;
   protected MediaType accept;
-  
+
   @Before
   public void init() throws Exception {
     client = ClientBuilder.newClient();
@@ -31,7 +31,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(3, props.size());
+    Assert.assertEquals(4, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -48,12 +48,13 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(3, props.size());
+    Assert.assertEquals(4, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
     Assert.assertEquals("ENC(NvuRfrVnqL8yDunzmutaCa6imIzh6QFL)",
         props.getProperty("property.6.name"));
+    Assert.assertEquals("", props.getProperty("property.is.empty"));
   }
 
   @Test
@@ -66,7 +67,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(8, props.size());
+    Assert.assertEquals(9, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -90,7 +91,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(8, props.size());
+    Assert.assertEquals(9, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -108,14 +109,14 @@ public abstract class AbstractGetTCase {
   @Test
   public void testGetValuesFromNamedRepoWithNamedProfile() throws Exception {
 
-    Response resp = target.path("/").queryParam("r", "default").queryParam("p", "simple")
-        .request(accept).get();
+    Response resp =
+        target.path("/").queryParam("r", "default").queryParam("p", "simple").request(accept).get();
     Assert.assertEquals(200, resp.getStatus());
 
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(8, props.size());
+    Assert.assertEquals(9, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -152,7 +153,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(3, props.size());
+    Assert.assertEquals(4, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -171,7 +172,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(3, props.size());
+    Assert.assertEquals(4, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -215,7 +216,7 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(3, props.size());
+    Assert.assertEquals(4, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
@@ -279,7 +280,7 @@ public abstract class AbstractGetTCase {
 
   }
 
-  
+
   public void testGetPropertiesFromJsonFile() throws Exception {
 
     Response resp = target.path("/env/dev/json").queryParam("r", "appx-j").request(accept).get();
@@ -289,12 +290,13 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(14, props.size());
+    Assert.assertEquals(15, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
     Assert.assertEquals("ENC(NvuRfrVnqL8yDunzmutaCa6imIzh6QFL)",
         props.getProperty("property.6.name"));
+    Assert.assertEquals("", props.getProperty("property.is.empty"));
 
     Assert.assertEquals("simple", props.getProperty("property.1.name"));
     Assert.assertNull(props.getProperty("property.3.name"));
@@ -313,7 +315,7 @@ public abstract class AbstractGetTCase {
 
   }
 
-  
+
   public void testGetPropertiesFromYamlFile() throws Exception {
 
     Response resp = target.path("/env/dev/yaml").queryParam("r", "appx-y").request(accept).get();
@@ -323,12 +325,14 @@ public abstract class AbstractGetTCase {
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals(14, props.size());
+    Assert.assertEquals(15, props.size());
 
     Assert.assertEquals("classpath", props.getProperty("property.5.name"));
     Assert.assertEquals("DEBUG", props.getProperty("log.root.level"));
     Assert.assertEquals("ENC(NvuRfrVnqL8yDunzmutaCa6imIzh6QFL)",
         props.getProperty("property.6.name"));
+    Assert.assertTrue(props.containsKey("property.is.empty"));
+    Assert.assertEquals("", props.getProperty("property.is.empty"));
 
     Assert.assertEquals("simple", props.getProperty("property.1.name"));
     Assert.assertNull(props.getProperty("property.3.name"));
@@ -347,6 +351,6 @@ public abstract class AbstractGetTCase {
 
   }
 
-  public abstract Properties convert(String body) throws Exception ;
+  public abstract Properties convert(String body) throws Exception;
 
 }

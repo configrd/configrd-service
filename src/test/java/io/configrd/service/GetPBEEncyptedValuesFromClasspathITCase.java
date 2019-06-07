@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import io.configrd.core.source.RepoDef;
 
 
-public class GetKmsEncyptedValuesFromClasspathITCase {
+public class GetPBEEncyptedValuesFromClasspathITCase {
 
   private static final Logger logger =
-      LoggerFactory.getLogger(GetKmsEncyptedValuesFromClasspathITCase.class);
+      LoggerFactory.getLogger(GetPBEEncyptedValuesFromClasspathITCase.class);
 
   protected Client client;
   protected WebTarget target;
@@ -33,12 +33,12 @@ public class GetKmsEncyptedValuesFromClasspathITCase {
   public static void setup() throws Throwable {
 
     Map<String, Object> init = TestConfigServer.initParams();
-    init.put(RepoDef.URI_FIELD, "classpath:kms-configrd.yaml");
+    init.put(RepoDef.URI_FIELD, "classpath:pbe-configrd.yaml");
     init.put(RepoDef.SOURCE_NAME_FIELD, "file");
 
     TestConfigServer.serverStart(init);
 
-    logger.info("Running " + GetKmsEncyptedValuesFromClasspathITCase.class.getName());
+    logger.info("Running " + GetPBEEncyptedValuesFromClasspathITCase.class.getName());
 
   }
 
@@ -58,21 +58,19 @@ public class GetKmsEncyptedValuesFromClasspathITCase {
   @Test
   public void testGetEncryptedProperties() throws Exception {
 
-    Response resp = target.path("/env/dev/kms").queryParam("r", "kms").request(accept).get();
+    Response resp = target.path("/env/dev/pbe").queryParam("r", "pbe").request(accept).get();
     Assert.assertEquals(200, resp.getStatus());
 
     String body = resp.readEntity(String.class);
     Properties props = convert(body);
 
-    Assert.assertEquals("hello", props.getProperty("kms.first.secret"));
-    Assert.assertEquals("hello", props.getProperty("kms.second.SeCRet"));
-    Assert.assertEquals(
-        "ENC(AQICAHgXaEZrD2fRF6NHtVTvoykgmuYYyhsFoqth8Xajiwl7mgFPHO7UxnfVlr/uKB+RCc6WAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMOfKkPfghgateoRBIAgEQgCB1lJhrNbC+lilFjx/4BXDjj2wmMncHJjw9oDtfSnfYaQ==)",
-        props.getProperty("kms.not_secret"));
-    Assert.assertEquals(
-        "ENC(AQICAHgXaEZrD2fRF6NHtVTvoykgmuYYyhsFoqth8Xajiwl7mgFPHO7UxnfVlr/uKB+RCc6WAAAAYzBhBgkqhkiG9w0BBwagVDBSAgEAME0GCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMOfKkPfghgateoRBIAgEQgCB1lJhrNbC+lilFjx/4BXDjj2wmMncHJjw9oDtfSnfYaQ==)",
-        props.getProperty("kms.encrypted"));
-    Assert.assertEquals("hello", props.getProperty("kms.third.secret"));
+    Assert.assertEquals("hello", props.getProperty("pbe.first.secret"));
+    Assert.assertEquals("hello", props.getProperty("pbe.second.SeCRet"));
+    Assert.assertEquals("ENC(OTZFRFRpMkMyTW9HbG5GMG80akhNaDNMaGVnTXV3dTRST0plaHZhY0JTdz0=)",
+        props.getProperty("pbe.not_secret"));
+    Assert.assertEquals("ENC(OTZFRFRpMkMyTW9HbG5GMG80akhNaDNMaGVnTXV3dTRST0plaHZhY0JTdz0=)",
+        props.getProperty("pbe.encrypted"));
+    Assert.assertEquals("hello", props.getProperty("pbe.third.secret"));
 
   }
 

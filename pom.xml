@@ -189,6 +189,11 @@
 			<artifactId>org.eclipse.jgit</artifactId>
 			<version>5.2.0.201812061821-r</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jasypt</groupId>
+			<artifactId>jasypt</artifactId>
+			<version>1.9.3</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<build.timestamp>${maven.build.timestamp}</build.timestamp>
