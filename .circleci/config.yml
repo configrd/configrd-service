@@ -2,7 +2,7 @@ version: 2
 jobs:
   build-service:
     docker:
-    - image: circleci/openjdk:8u171-jdk-stretch
+    - image: cimg/openjdk:23.0.1
     environment:
       CC_TEST_REPORTER_ID: 3195f456f8512c7f896c253646f4860352f164c0bcc699568f6ebb9571b39302
     steps:
@@ -36,7 +36,7 @@ jobs:
         - target/failsafe-report
   deploy-service:
     docker:
-    - image: circleci/openjdk:8-jdk
+    - image: cimg/openjdk:23.0.1
     steps:
     - checkout
     - restore_cache:
@@ -47,7 +47,7 @@ jobs:
         path: target
   docker-push:
     docker:
-    - image: circleci/openjdk:8-jdk
+    - image: cimg/openjdk:23.0.1
     steps:
     - checkout
     - restore_cache:
@@ -66,7 +66,7 @@ jobs:
           docker push $DOCKERHUB/${DOCKER_IMAGE_NAME}:latest
   s3-push:
     docker:
-    - image: circleci/openjdk:8-jdk
+    - image: cimg/openjdk:23.0.1
     steps:
     - checkout
     - run:
