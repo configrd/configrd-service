@@ -7,7 +7,7 @@
   <description>External configuration service</description>
   <url>https://github.com/configrd/configrd-service</url>
   <packaging>jar</packaging>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
   <groupId>io.configrd</groupId>
   <developers>
     <developer>
@@ -47,7 +47,7 @@
     <dependency>
       <groupId>io.configrd</groupId>
       <artifactId>configrd-core</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.1</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>

@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import io.configrd.core.Environment;
+import io.configrd.core.util.Environment;
 
 @Ignore
 public class LookupConfigByHostITCase extends TestConfigServer {
