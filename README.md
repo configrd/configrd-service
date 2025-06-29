@@ -24,3 +24,5 @@ service:
       sourceName: file
 ```
 Now open your favorite browser and navigate to [http://localhost:9191/configrd/v1/](http://localhost:9191/configrd/v1/)
+
+This project is tested with BrowserStack.
